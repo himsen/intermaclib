@@ -54,7 +54,7 @@ struct intermac_ctx {
 	u_int ciphertext_length; /*  Length of resulting ciphertext after encrypting 'chunk_length' bytes, for chosen encryption function (counted in bytes) */
 	u_int mactag_length; /* Length of MAC tag (counted in bytes) */
 	u_int number_of_chunks; /* Number of chunks of current message being encrypted(set in im_get_length) */ 
-	u_int src_consumed; /* Counts how many bytes have been processed from input for current invocation of decryption function */
+	u_int src_processed; /* Counts how many bytes have been processed from input for current invocation of decryption function */
 
 	/* For supporting expandable buffer during decryption */
 	/* TODO: implement simple variable length buffer */
@@ -69,7 +69,7 @@ struct intermac_ctx {
 int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*, int);
 int im_get_length(struct intermac_ctx*, u_int, u_int*);
 int im_encrypt(struct intermac_ctx*, u_char*, const u_char*, u_int);
-int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_char**, u_int*);
+int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char**, u_int*);
 int im_cleanup(struct intermac_ctx*);
 
 /* Internal functions */

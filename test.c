@@ -123,9 +123,10 @@ int main(void) {
 */
 
 	u_char *decrypted_packet;
+	u_int this_processed = 0;
 	u_int length_decrypted_packet = 0;
 
-	if (im_decrypt(im_decrypt_ctx, dst, dst_length, 0, &decrypted_packet, &length_decrypted_packet) != 0) {
+	if (im_decrypt(im_decrypt_ctx, dst, dst_length, 0, &this_processed, &decrypted_packet, &length_decrypted_packet) != 0) {
 		return 0;		
 	}
 
@@ -133,9 +134,10 @@ int main(void) {
 	dump_data(decrypted_packet, length_decrypted_packet, stderr);
 
 	u_char *decrypted_packet2;
+	u_int this_processed2 = 0;
 	u_int length_decrypted_packet2 = 0;
 
-	if (im_decrypt(im_decrypt_ctx, dst2, dst_length2, 0, &decrypted_packet2, &length_decrypted_packet2) != 0) {
+	if (im_decrypt(im_decrypt_ctx, dst2, dst_length2, 0, &this_processed2, &decrypted_packet2, &length_decrypted_packet2) != 0) {
 		return 0;		
 	}
 
@@ -143,9 +145,10 @@ int main(void) {
 	dump_data(decrypted_packet2, length_decrypted_packet2, stderr);
 
 	u_char *decrypted_packet3;
+	u_int this_processed3 = 0;
 	u_int length_decrypted_packet3 = 0;
 
-	if (im_decrypt(im_decrypt_ctx, dst3, dst_length3, 0, &decrypted_packet3, &length_decrypted_packet3) != 0) {
+	if (im_decrypt(im_decrypt_ctx, dst3, dst_length3, 0, &this_processed3, &decrypted_packet3, &length_decrypted_packet3) != 0) {
 		return 0;		
 	}
 
@@ -153,13 +156,14 @@ int main(void) {
 	dump_data(decrypted_packet3, length_decrypted_packet3, stderr);
 
 	u_char *decrypted_packet4;
+	u_int this_processed4 = 0;
 	u_int length_decrypted_packet4 = 0;
 
-	if (im_decrypt(im_decrypt_ctx, dst4, 200, 0, &decrypted_packet4, &length_decrypted_packet4) != 0) {
+	if (im_decrypt(im_decrypt_ctx, dst4, 200, 0, &this_processed4, &decrypted_packet4, &length_decrypted_packet4) != 0) {
 		return 0;		
 	}
 
-	if (im_decrypt(im_decrypt_ctx, dst4, dst_length4, im_decrypt_ctx->src_consumed, &decrypted_packet4, &length_decrypted_packet4) != 0) {
+	if (im_decrypt(im_decrypt_ctx, dst4, dst_length4, 0, &this_processed4, &decrypted_packet4, &length_decrypted_packet4) != 0) {
 		return 0;		
 	}
 

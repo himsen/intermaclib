@@ -7,6 +7,7 @@ TODO
  - Integrate into OpenSSH
  - Decide on interface to decryption. Should we take care of managing how much we have encrypted already?
    * if yes, this would make it a lot easier to use, but also might give a timing signal (see below)
+ - Add guards for calling functions too many times (data limits)
 
 
  NOTES

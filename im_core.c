@@ -283,9 +283,9 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 }
 
 /*
- *
+ * 'src_consumed': how much data have been removed from 'src' buffer. 
  */
-int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_offset, u_char **dst, u_int *this_consumed, u_int *length_decrypted_packet) {
+int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_processed, u_char **dst, u_int *length_decrypted_packet) {
 
 	printf("Enter im_decrypt()\n");
 
@@ -296,23 +296,21 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_int chunk_length = im_ctx->chunk_length;
 	u_int ciphertext_length = im_ctx->ciphertext_length;
 	u_int mactag_length = im_ctx->mactag_length;
+	u_int src_processed = im_ctx->src_processed; /* How much data processed from  'src' in previous calls */
+	u_int padding_length = 0;
 	u_int chunk_counter;
 	u_int message_counter;
 	u_int decrypt_buffer_offset;
 	u_int decrypt_buffer_size;
 	u_int decrypt_buffer_realloc;
-	u_int padding_length = 0;
 
-	u_int already_parsed = 0;
-	u_int src_consumed = 0;
 
 	u_char decrypted_chunk[chunk_length];
 	u_char expected_tag[mactag_length];
 	u_char nonce[IM_NONCE_LENGTH];
 
 	*length_decrypted_packet = 0;
-
-	im_ctx->src_consumed = 0;
+	*this_processed = 0; /* How much data have been processed on 'this' call at any given time */
 
 	for (;;) {
 
@@ -322,14 +320,14 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		decrypt_buffer_realloc = im_ctx->decrypt_buffer_realloc;
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
-		if (src_length - src_offset - already_parsed < ciphertext_length + mactag_length) {
+		if (src_length + src_consumed - src_processed - *this_processed < ciphertext_length + mactag_length) {
 			 /* printf("Not enough data\n"); TODO: remove */
 			return 0;
 		}
 
 		/* printf("Got enough data\n"); TODO: remove */
 
-		memcpy(expected_tag, src + (src_offset + already_parsed + ciphertext_length), mactag_length);
+		memcpy(expected_tag, src + (src_processed + *this_processed + ciphertext_length - src_consumed), mactag_length);
 		
 		if (decrypt_buffer_offset == 0) {
 			decrypt_buffer_size = decrypt_buffer_size + decrypt_buffer_realloc;
@@ -349,7 +347,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 		dump_data(src + (src_offset + already_parsed), chunk_length + 16, stderr);
 */
-		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_offset + already_parsed), chunk_length) != 0) {
+		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_processed + *this_processed - src_consumed), chunk_length) != 0) {
 			/* printf("do_cipher failed\n"); TODO: remove */
 			return IM_ERR;
 		}
@@ -359,7 +357,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
-		im_ctx->src_consumed = im_ctx->src_consumed + (chunk_length + mactag_length);
+		im_ctx->src_processed = src_processed + (ciphertext_length + mactag_length);
 
 
 		/* Check chunk delimiter; if chunk delimiter for final chunk, remove padding (if any) */
@@ -376,7 +374,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		}
 
 		im_ctx->decrypt_buffer_size = decrypt_buffer_size;
-		already_parsed = already_parsed + (ciphertext_length + mactag_length);
+		*this_processed = *this_processed + (ciphertext_length + mactag_length);
 	}
 
 	*length_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
@@ -384,6 +382,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	im_ctx->message_counter = message_counter + 1;
 	im_ctx->decrypt_buffer_offset = 0;
 	im_ctx->chunk_counter = 0;
+	im_ctx->src_processed = 0;
 
 	*dst = im_ctx->decrypt_buffer;
 
