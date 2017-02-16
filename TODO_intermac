@@ -1,0 +1,18 @@
+TODO
+
+ - Fix 512 chunk length bug
+ - Discuss why block_size check is needed in cipher_crypt
+ - Construct own IV: 32 seqnr and 64 counter
+ - Document design decisions 
+ - Read release notes
+ - Check timing issues with initialisation
+ - Extend with chachapoly
+ - How does this OpenSSL integration works
+
+
+ NOTES
+
+ - Per packet timing leak is bad
+ - Per chunk timing leak is ok. 
+ - Had to disable block length check. How to get around this???
+
