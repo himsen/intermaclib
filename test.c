@@ -7,7 +7,7 @@
 
 int main(void) {
 	
-	printf("HEJ START\n");
+	printf("Intermac tests start\n");
 
 	struct intermac_ctx *im_encrypt_ctx = NULL;
 
@@ -17,7 +17,7 @@ int main(void) {
 
 	//u_char* iv = (u_char*) "111111111111";
 
-	if (im_initialise(&im_encrypt_ctx, enckey, 128, "im-chacha-poly", 1) != 0) {
+	if (im_initialise(&im_encrypt_ctx, enckey, 128, "im-chacha-poly", IM_CIPHER_ENCRYPT) != 0) {
 		return 0;
 	}
 
@@ -47,6 +47,58 @@ int main(void) {
 		return 0;
 	}
 
+	const u_char* src2 = (const u_char*) malloc(sizeof(u_char) * 512);
+	memset(src2, 49, sizeof(u_char) * 512);
+
+	u_int src_length2 = 512;
+	u_int dst_length2 = 0;
+
+	im_get_length(im_encrypt_ctx, src_length2, &dst_length2);
+
+	u_char dst2[dst_length2];
+
+	printf("Encrypting:\n");
+	dump_data(src2, src_length2, stderr);
+
+	if (im_encrypt(im_encrypt_ctx, dst2, src2, src_length2) != 0) {
+		return 0;
+	}
+
+	const u_char* src3 = (const u_char*) malloc(sizeof(u_char) * 600);
+	memset(src3, 49, sizeof(u_char) * 600);
+
+	u_int src_length3 = 600;
+	u_int dst_length3 = 0;
+
+	im_get_length(im_encrypt_ctx, src_length3, &dst_length3);
+
+	u_char dst3[dst_length3];
+
+	printf("Encrypting:\n");
+	dump_data(src3, src_length3, stderr);
+
+	if (im_encrypt(im_encrypt_ctx, dst3, src3, src_length3) != 0) {
+		return 0;
+	}
+
+	const u_char* src4 = (const u_char*) malloc(sizeof(u_char) * 368);
+	memset(src4, 49, sizeof(u_char) * 368);
+
+	u_int src_length4 = 368;
+	u_int dst_length4 = 0;
+
+	im_get_length(im_encrypt_ctx, src_length4, &dst_length4);
+
+	u_char dst4[dst_length4];
+
+	printf("Encrypting:\n");
+	dump_data(src4, src_length4, stderr);
+
+
+	if (im_encrypt(im_encrypt_ctx, dst4, src4, src_length4) != 0) {
+		return 0;
+	}
+
 	if (im_cleanup(im_encrypt_ctx) != 0) {
 		return 0;
 	}
@@ -54,7 +106,7 @@ int main(void) {
 
 	struct intermac_ctx *im_decrypt_ctx = NULL;
 
-	if (im_initialise(&im_decrypt_ctx, enckey, 128, "im-chacha-poly", 0) != 0) {
+	if (im_initialise(&im_decrypt_ctx, enckey, 128, "im-chacha-poly", IM_CIPHER_DECRYPT) != 0) {
 		return 0;
 	}
 
@@ -77,10 +129,55 @@ int main(void) {
 		return 0;		
 	}
 
-	printf("Decrypted:\n");
+	printf("Decrypted 1:\n");
 	dump_data(decrypted_packet, length_decrypted_packet, stderr);
 
-	printf("HEJ DONE\n");
+	u_char *decrypted_packet2;
+	u_int length_decrypted_packet2 = 0;
+
+	if (im_decrypt(im_decrypt_ctx, dst2, dst_length2, 0, &decrypted_packet2, &length_decrypted_packet2) != 0) {
+		return 0;		
+	}
+
+	printf("Decrypted 2:\n");
+	dump_data(decrypted_packet2, length_decrypted_packet2, stderr);
+
+	u_char *decrypted_packet3;
+	u_int length_decrypted_packet3 = 0;
+
+	if (im_decrypt(im_decrypt_ctx, dst3, dst_length3, 0, &decrypted_packet3, &length_decrypted_packet3) != 0) {
+		return 0;		
+	}
+
+	printf("Decrypted 3:\n");
+	dump_data(decrypted_packet3, length_decrypted_packet3, stderr);
+
+	u_char *decrypted_packet4;
+	u_int length_decrypted_packet4 = 0;
+
+	if (im_decrypt(im_decrypt_ctx, dst4, 200, 0, &decrypted_packet4, &length_decrypted_packet4) != 0) {
+		return 0;		
+	}
+
+	if (im_decrypt(im_decrypt_ctx, dst4, dst_length4, im_decrypt_ctx->src_consumed, &decrypted_packet4, &length_decrypted_packet4) != 0) {
+		return 0;		
+	}
+
+	printf("Decrypted 4:\n");
+	dump_data(decrypted_packet4, length_decrypted_packet4, stderr);
+
+
+	if (im_cleanup(im_decrypt_ctx) != 0) {
+		return 0;
+	}
+
+	free(decrypted_packet);
+	free(decrypted_packet2);
+
+
+
+
+	printf("Intermac tests done\n");
 
 	return 0;
 }

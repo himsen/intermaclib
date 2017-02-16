@@ -1,18 +1,28 @@
 TODO
 
- - Fix 512 chunk length bug
- - Discuss why block_size check is needed in cipher_crypt
- - Construct own IV: 32 seqnr and 64 counter
- - Document design decisions 
- - Read release notes
- - Check timing issues with initialisation
- - Extend with chachapoly
- - How does this OpenSSL integration works
+ - Replace malloc with calloc
+ - Implement AES-GCM support (use NI) or make comparable with OpenSSH?
+ - Implement simply variable-length buffer
+ - Write nice (easy to read and extend) tests
+ - Integrate into OpenSSH
+ - Decide on interface to decryption. Should we take care of managing how much we have encrypted already?
+   * if yes, this would make it a lot easier to use, but also might give a timing signal (see below)
 
 
  NOTES
 
  - Per packet timing leak is bad
- - Per chunk timing leak is ok. 
+ - Per chunk timing leak is ok 
  - Had to disable block length check. How to get around this???
+
+
+ PAPER
+
+ - Document design decisions 
+ - Discuss why we can't do exponential forecating 
+ - Discuss why are we trying to acheive boundary hidinng
+ - Pseudo descriptions 
+ - Discuss what the strategy should be when the decryption function returns
+   * Should we copy data right away or wait for the whole ciphertext to be decrypted?
+   * waitiing might give a timing signal becuase it suddently takes time to copy (maybe a lot of data)
 

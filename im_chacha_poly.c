@@ -15,6 +15,7 @@
  */
 
 /* TODO: Which license? */
+
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
@@ -25,7 +26,8 @@ int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key, u
 
 	printf("Enter im_chacha_poly_init()\n");
 
-	if (key_len / 8 != 32) {
+	if ((key_len / 8) != 32) {
+
 		return -1;
 	}
 
@@ -39,6 +41,7 @@ int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key, u
 int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char *dst, const u_char *src, u_int src_length) {
 
 	if (nonce == NULL) {
+
 		return -1;
 	}
 
@@ -50,10 +53,12 @@ int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_c
 	im_chacha_encrypt_bytes(&im_cs_ctx->im_cc_ctx, poly_key, poly_key, sizeof(poly_key));
 
 	if (!im_cs_ctx->crypt_type) {
+
 		const u_char *tag = src + src_length;
 
 		im_poly1305_auth(expected_tag, src, src_length, poly_key);
 		if (im_timingsafe_bcmp(expected_tag, tag, IM_POLY1305_TAGLEN) != 0) {
+
 			return -1;
 		}
 	}

@@ -263,10 +263,15 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 		
 		/* Encrypts chunk and computes MAC tag using chosen cipher */
-		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, dst, chunkbuf, chunk_length) != 0) {
+		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, dst + pp, chunkbuf, chunk_length) != 0) {
 			return IM_ERR;
 		}
+/* TODO: remove
+		printf("chunk_counter: %d\n", chunk_counter);
+		printf("message_counter: %d\n", message_counter);
 
+		dump_data(dst + pp, chunk_length + 16, stderr);
+*/
 		chunk_counter = chunk_counter + 1;
 	}
 
@@ -280,7 +285,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 /*
  *
  */
-int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_offset, u_char **dst, u_int *length_decrypted_packet) {
+int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_offset, u_char **dst, u_int *this_consumed, u_int *length_decrypted_packet) {
 
 	printf("Enter im_decrypt()\n");
 
@@ -318,8 +323,11 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
 		if (src_length - src_offset - already_parsed < ciphertext_length + mactag_length) {
+			 /* printf("Not enough data\n"); TODO: remove */
 			return 0;
 		}
+
+		/* printf("Got enough data\n"); TODO: remove */
 
 		memcpy(expected_tag, src + (src_offset + already_parsed + ciphertext_length), mactag_length);
 		
@@ -335,8 +343,14 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		}
 
 		im_encode_nonce(nonce, chunk_counter, message_counter);
+/* TODO: remove
+		printf("chunk_counter: %d\n", chunk_counter);
+		printf("message_counter: %d\n", message_counter);
 
+		dump_data(src + (src_offset + already_parsed), chunk_length + 16, stderr);
+*/
 		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_offset + already_parsed), chunk_length) != 0) {
+			/* printf("do_cipher failed\n"); TODO: remove */
 			return IM_ERR;
 		}
 
