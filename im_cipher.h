@@ -23,7 +23,6 @@ struct imcipher {
 
 /* Intermac cipher context */
 struct imcipher_ctx {
-
 	const struct imcipher* cipher;
 	struct im_cipher_st_ctx im_cs_ctx;
 };
