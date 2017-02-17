@@ -21,6 +21,8 @@ Start server
 $(pwd)/sshd -ddd -f ./sshd_config -h $(pwd)/ssh_host_rsa_key
 
 Start client
+$(pwd)/ssh -vvv -c intermac-128-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
+
 $(pwd)/ssh -vvv -c intermac-256-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
 
 $(pwd)/ssh -vvv -c intermac-512-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev

@@ -283,7 +283,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 }
 
 /*
- * 'src_consumed': how much data have been removed from 'src' buffer. 
+ * 'src_consumed': how much data that has been removed from 'src' buffer. TODO: Write decription
  */
 int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_processed, u_char **dst, u_int *length_decrypted_packet) {
 
@@ -331,10 +331,11 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		
 		if (decrypt_buffer_offset == 0) {
 			decrypt_buffer_size = decrypt_buffer_size + decrypt_buffer_realloc;
-			im_ctx->decrypt_buffer = (u_char*) malloc(sizeof(u_char) * decrypt_buffer_size);
+			im_ctx->decrypt_buffer = (u_char*) calloc(decrypt_buffer_size, sizeof(u_char));
 		}
 		else if (decrypt_buffer_offset == decrypt_buffer_size) {
 			decrypt_buffer_size = decrypt_buffer_size + decrypt_buffer_realloc;
+			/* TODO: no guarentee that realloc uses calloc... */ 
 			if ((im_ctx->decrypt_buffer = (u_char*) realloc(im_ctx->decrypt_buffer, decrypt_buffer_size)) == NULL) {
 				return IM_ERR;
 			}
@@ -390,11 +391,13 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 }
 
 /* 
- * 
+ * TODO: write description 
  */
 int im_cleanup(struct intermac_ctx *im_ctx) {
 
 	printf("enter im_free()\n");
+
+	/* TODO: If OpenSSL, clean up contexts */
 
 	free(im_ctx->im_c_ctx);
 	free(im_ctx);
@@ -402,7 +405,7 @@ int im_cleanup(struct intermac_ctx *im_ctx) {
 	return 0;
 }
 
-
+/* TODO: remove */
 void
 dump_data(const void *s, size_t len, FILE *f)
 {

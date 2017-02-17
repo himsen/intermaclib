@@ -18,13 +18,10 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "im_chacha_poly.h"
 
 int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key, u_int key_len, u_char *nonce, int crypt_type) {
-
-	printf("Enter im_chacha_poly_init()\n");
 
 	if ((key_len / 8) != 32) {
 
@@ -40,6 +37,8 @@ int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key, u
 
 int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char *dst, const u_char *src, u_int src_length) {
 
+	int crypt_type = im_cs_ctx->crypt_type;
+
 	if (nonce == NULL) {
 
 		return -1;
@@ -52,7 +51,7 @@ int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_c
 	im_chacha_noncesetup(&im_cs_ctx->im_cc_ctx, nonce, NULL);
 	im_chacha_encrypt_bytes(&im_cs_ctx->im_cc_ctx, poly_key, poly_key, sizeof(poly_key));
 
-	if (!im_cs_ctx->crypt_type) {
+	if (crypt_type == IM_CIPHER_DECRYPT) {
 
 		const u_char *tag = src + src_length;
 
@@ -66,7 +65,7 @@ int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_c
 	im_chacha_noncesetup(&im_cs_ctx->im_cc_ctx, nonce, one);
 	im_chacha_encrypt_bytes(&im_cs_ctx->im_cc_ctx, src, dst, src_length);
 
-	if (im_cs_ctx->crypt_type) {
+	if (crypt_type == IM_CIPHER_ENCRYPT) {
 
 		im_poly1305_auth(dst + src_length, dst, src_length, poly_key);
 	}

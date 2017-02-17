@@ -1,13 +1,15 @@
 TODO
 
- - Replace malloc with calloc
+ - Implement MAKE file
+ - Refactor to constant time online encryption/decryption
  - Implement AES-GCM support (use NI) or make comparable with OpenSSH?
  - Implement simply variable-length buffer
  - Write nice (easy to read and extend) tests
  - Integrate into OpenSSH
- - Decide on interface to decryption. Should we take care of managing how much we have encrypted already?
-   * if yes, this would make it a lot easier to use, but also might give a timing signal (see below)
  - Add guards for calling functions too many times (data limits)
+ - Make more portable with size_t instead of u_int (or understand what is the difference)
+ - Licencse?
+ - Add dependency flag to openssl such that it is possible to compile without
 
 
  NOTES
@@ -15,6 +17,7 @@ TODO
  - Per packet timing leak is bad
  - Per chunk timing leak is ok 
  - Had to disable block length check. How to get around this???
+ - ChaCha-Poly construction follows https://tools.ietf.org/html/rfc7539
 
 
  PAPER
@@ -27,3 +30,4 @@ TODO
    * Should we copy data right away or wait for the whole ciphertext to be decrypted?
    * waitiing might give a timing signal becuase it suddently takes time to copy (maybe a lot of data)
 
+ 
