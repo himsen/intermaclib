@@ -3,3 +3,4 @@ test
 saving.c
 intermac-integration.c
 intermac-integration.h
+*.a
