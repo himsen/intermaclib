@@ -1,8 +1,8 @@
 TODO
 
  - Implement MAKE file
+ - Implement clean up functions (function pointers in general cipher struct)
  - Refactor to constant time online encryption/decryption
- - Implement AES-GCM support (use NI) or make comparable with OpenSSH?
  - Implement simply variable-length buffer
  - Write nice (easy to read and extend) tests
  - Integrate into OpenSSH
@@ -10,6 +10,7 @@ TODO
  - Make more portable with size_t instead of u_int (or understand what is the difference)
  - Licencse?
  - Add dependency flag to openssl such that it is possible to compile without
+ - (DONE) Implement AES-GCM support (use NI) or make comparable with OpenSSH?
 
 
  NOTES
