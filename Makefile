@@ -13,9 +13,11 @@ all: testintermac libintermac.a
 testintermac: $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS) $(LIBS) 
 
-libintermac.a : $(OBJS)
+libintermac.a: $(OBJS)
 	ar rv $@ $(OBJS)
 	ranlib $@ 
 
 clean: 
 	rm *.o
+	rm *.a
+	testintermac
