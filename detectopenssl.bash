@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#From https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security_Guide/sect-Security_Guide-Encryption-OpenSSL_Intel_AES-NI_Engine.html
+
 echo 
 echo "(This is only tested on Linux systems)"
 echo "Ask if the processor has the AES instruction set:"
