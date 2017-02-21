@@ -9,7 +9,7 @@ TODO
  - Add guards for calling functions too many times (data limits)
  - Make more portable with size_t instead of u_int (or understand what is the difference)
  - Licencse?
- - Add dependency flag to openssl such that it is possible to compile without
+
  - (DONE) Implement AES-GCM support (use NI) or make comparable with OpenSSH?
 
 
