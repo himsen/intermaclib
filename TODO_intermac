@@ -1,24 +1,27 @@
 TODO
 
- - Implement MAKE file
+ - Write decryption function description
  - Implement clean up functions (function pointers in general cipher struct)
- - Refactor to constant time online encryption/decryption
- - Implement simply variable-length buffer
+
  - Write nice (easy to read and extend) tests
- - Integrate into OpenSSH
  - Add guards for calling functions too many times (data limits)
  - Make more portable with size_t instead of u_int (or understand what is the difference)
  - Licencse?
+ - Add support for authenticated additional data
+ - Implement re-key
+ - Add fake parse after recieving final chunk?
 
+ - (DONE) Implement MAKE file
  - (DONE) Implement AES-GCM support (use NI) or make comparable with OpenSSH?
-
-
+ - (DONE) Integrate into OpenSSH
+ - (DONE (somewhat)) Refactor to constant time online encryption/decryption
  NOTES
 
  - Per packet timing leak is bad
  - Per chunk timing leak is ok 
  - Had to disable block length check. How to get around this???
- - ChaCha-Poly construction follows https://tools.ietf.org/html/rfc7539
+ - ChaCha-Poly construction follows https://tools.ietf.org/html/
+ - packages are normally small during interactive session so more efficient to remove lenth field and padding length field
 
 
  PAPER
@@ -31,4 +34,3 @@ TODO
    * Should we copy data right away or wait for the whole ciphertext to be decrypted?
    * waitiing might give a timing signal becuase it suddently takes time to copy (maybe a lot of data)
 
- 

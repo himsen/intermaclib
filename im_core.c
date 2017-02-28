@@ -16,8 +16,6 @@
  */
 int im_padding_length_encrypt(u_int length, u_int chunk_length, u_int number_of_chunks, u_int *res) {
 
-	printf("Enter im_padding_length_encrypt()\n");
-
 	u_int data_delimiters;
 	u_int padding_length;
 
@@ -34,8 +32,6 @@ int im_padding_length_encrypt(u_int length, u_int chunk_length, u_int number_of_
  * Compares consecutive bytes over the whole chunk to avoid leakage.  
  */
 int im_padding_length_decrypt(u_char *decrypted_chunk, u_int chunk_length, u_int *padding_length) {
-
-	printf("Enter im_padding_length_decrypt()\n");
 
 	u_int i;
 	u_int padding_counter = 1;
@@ -70,9 +66,12 @@ int im_padding_length_decrypt(u_char *decrypted_chunk, u_int chunk_length, u_int
 	return 0;
 }
 
-int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_length, u_int chunk_length) {
 
-	printf("Enter im_add_alternating_padding()\n");
+/*
+ * Adds aternating padding to a chunk
+ * Padding byte depends on the late by in 'src'
+ */
+int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_length, u_int chunk_length) {
 
 	if (padding_length == 0) {
 		return 0;
@@ -104,8 +103,6 @@ int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_lengt
  */
 void im_encode_nonce(u_char *nonce, u_int chunk_counter, u_int message_counter) {
 
-	printf("Enter im_encode_nonce()\n");
-
 	IM_U32ENCODE(nonce, chunk_counter);
 	IM_U64ENCODE(nonce + 4, message_counter);
 }
@@ -116,8 +113,6 @@ void im_encode_nonce(u_char *nonce, u_int chunk_counter, u_int message_counter) 
  * Contexts must be freed using im_cleanup().
  */
 int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chunk_length, const char *cipher, int crypt_type) {
-
-	printf("Enter im_initialise()\n");
 
 	int r; /* Error */
 
@@ -152,10 +147,8 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	_im_ctx->chunk_counter = 0;
 	_im_ctx->message_counter = 0;
 
-	// TODO: implement simple variable length buffer
 	_im_ctx->decrypt_buffer_offset = 0;
 	_im_ctx->decrypt_buffer_size = 0;
-	_im_ctx->decrypt_buffer_realloc = (chunk_length - 1) * IM_DECRYPT_BUFFER_REALLOC_MULTIPLIER;
 
 	_im_c_ctx->cipher = _cipher;
 	_im_c_ctx->im_cs_ctx = _im_cs_ctx;
@@ -171,8 +164,6 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
  * This function must be called before im_encrypt()
  */
 int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
-
-	printf("Enter im_get_length() \n");
 
 	int noc; /* Number of chunks */
 
@@ -200,8 +191,6 @@ int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
  * Enough memory must have been allocated at '*dst'. 
  */
 int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_int src_length) {
-
-	printf("Enter im_encrypt()\n");
 
 	u_int padding_length;
 	u_int padding_offset;
@@ -266,12 +255,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, dst + pp, chunkbuf, chunk_length) != 0) {
 			return IM_ERR;
 		}
-/* TODO: remove
-		printf("chunk_counter: %d\n", chunk_counter);
-		printf("message_counter: %d\n", message_counter);
 
-		dump_data(dst + pp, chunk_length + 16, stderr);
-*/
 		chunk_counter = chunk_counter + 1;
 	}
 
@@ -283,11 +267,9 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 }
 
 /*
- * 'src_consumed': how much data that has been removed from 'src' buffer. TODO: Write decription
+ * TODO: Write decription
  */
 int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_processed, u_char **dst, u_int *length_decrypted_packet) {
-
-	printf("Enter im_decrypt()\n");
 
 	u_char chunk_delimiter; /* Holds current chunk delimiter */
 	u_char chunk_delimiter_final = IM_CHUNK_DELIMITER_FINAL;
@@ -296,14 +278,12 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_int chunk_length = im_ctx->chunk_length;
 	u_int ciphertext_length = im_ctx->ciphertext_length;
 	u_int mactag_length = im_ctx->mactag_length;
-	u_int src_processed = im_ctx->src_processed; /* How much data processed from  'src' in previous calls */
+	u_int src_processed = im_ctx->src_processed; /* How much data processed from 'src' in previous calls */
 	u_int padding_length = 0;
 	u_int chunk_counter;
 	u_int message_counter;
 	u_int decrypt_buffer_offset;
 	u_int decrypt_buffer_size;
-	u_int decrypt_buffer_realloc;
-
 
 	u_char decrypted_chunk[chunk_length];
 	u_char expected_tag[mactag_length];
@@ -317,49 +297,30 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		chunk_counter = im_ctx->chunk_counter;
 		message_counter = im_ctx->message_counter;
 		decrypt_buffer_size = im_ctx->decrypt_buffer_size;
-		decrypt_buffer_realloc = im_ctx->decrypt_buffer_realloc;
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
 		if (src_length + src_consumed - src_processed - *this_processed < ciphertext_length + mactag_length) {
-			 /* printf("Not enough data\n"); TODO: remove */
 			return 0;
 		}
 
-		/* printf("Got enough data\n"); TODO: remove */
-
 		memcpy(expected_tag, src + (src_processed + *this_processed + ciphertext_length - src_consumed), mactag_length);
-		
-		if (decrypt_buffer_offset == 0) {
-			decrypt_buffer_size = decrypt_buffer_size + decrypt_buffer_realloc;
-			im_ctx->decrypt_buffer = (u_char*) calloc(decrypt_buffer_size, sizeof(u_char));
-		}
-		else if (decrypt_buffer_offset == decrypt_buffer_size) {
-			decrypt_buffer_size = decrypt_buffer_size + decrypt_buffer_realloc;
-			/* TODO: no guarentee that realloc uses calloc... */ 
-			if ((im_ctx->decrypt_buffer = (u_char*) realloc(im_ctx->decrypt_buffer, decrypt_buffer_size)) == NULL) {
-				return IM_ERR;
-			}
-		}
+
+		/* TODO: no guarentee that realloc uses calloc... */ 
+		decrypt_buffer_size = decrypt_buffer_size + (chunk_length - 1);
+		*dst = (u_char*) realloc(*dst, decrypt_buffer_size);
 
 		im_encode_nonce(nonce, chunk_counter, message_counter);
-/* TODO: remove
-		printf("chunk_counter: %d\n", chunk_counter);
-		printf("message_counter: %d\n", message_counter);
 
-		dump_data(src + (src_offset + already_parsed), chunk_length + 16, stderr);
-*/
 		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_processed + *this_processed - src_consumed), chunk_length) != 0) {
-			/* printf("do_cipher failed\n"); TODO: remove */
 			return IM_ERR;
 		}
 
-		memcpy(im_ctx->decrypt_buffer + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
+		memcpy(*dst + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
 		chunk_delimiter = decrypted_chunk[chunk_length - 1];
 
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
 		im_ctx->src_processed = src_processed + (ciphertext_length + mactag_length);
-
 
 		/* Check chunk delimiter; if chunk delimiter for final chunk, remove padding (if any) */
 		if (!memcmp(&chunk_delimiter, &chunk_delimiter_final, 1)) {
@@ -379,28 +340,26 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	}
 
 	*length_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
-	im_ctx->decrypt_buffer_size = 0;
 	im_ctx->message_counter = message_counter + 1;
+	im_ctx->decrypt_buffer_size = 0;
 	im_ctx->decrypt_buffer_offset = 0;
 	im_ctx->chunk_counter = 0;
 	im_ctx->src_processed = 0;
-
-	*dst = im_ctx->decrypt_buffer;
 
 	return 0;
 }
 
 /* 
- * TODO: write description 
+ * TODO: write proper clean up functions 
  */
 int im_cleanup(struct intermac_ctx *im_ctx) {
 
-	printf("enter im_free()\n");
+	//printf("enter im_free()\n");
 
 	/* TODO: If OpenSSL, clean up contexts */
 
-	free(im_ctx->im_c_ctx);
-	free(im_ctx);
+	//free(im_ctx->im_c_ctx);
+	//free(im_ctx);
 
 	return 0;
 }

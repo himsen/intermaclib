@@ -39,12 +39,6 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char 
 		}
 	}
 
-	/* Set the nonce 
-	if (EVP_CIPHER_CTX_ctrl(im_cs_ctx->evp, EVP_CTRL_GCM_SET_IV_FIXED, -1, nonce) == 0) {
-		printf("ff\n");
-		return -1;
-	}	*/
-
 	/* Set new nonce */
 	if (EVP_CipherInit(im_cs_ctx->evp, NULL, NULL, nonce, crypt_type) == 0) {
 

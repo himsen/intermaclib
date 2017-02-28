@@ -1,47 +1,18 @@
-Compiling Intermac
+Compiling intermac test and intermac lib (root folder of intermac lib)
 
-Test compile (located in intermac folder):
+$ make
 
-first
+Compile OpenSSH with intermac (root folder of OpenSSH lib)
 
-gcc -c -I../ test.c intermac.c intermac-integration.c
-
-Second
-
-gcc intermac.o intermac-integration.o test.o ../ssherr.o ../sshbuf-getput-basic.o -o test ../libssh.a ../openbsd-compat/libopenbsd-compat.a -lcrypto                                                            
-
-
-rm *.o; rm test; gcc -c -fPIC -I../ intermac-integration.c; gcc -c -fPIC -I../ intermac.c; gcc -c -fPIC -I../ test.c; gcc intermac.o intermac-integration.o test.o ../ssherr.o ../sshbuf-getput-basic.o -o test ../libssh.a ../openbsd-compat/libopenbsd-compat.a -lcrypto; ./test
-
-
-
-How to run openssh with intermac (located in root of openssh folder):
+(assuming configure stage has been performed)
+$ cp intermac_folder/libintermac.a openssh_folder
+add -lintermac to LIBS
+$ make
 
 Start server
 $(pwd)/sshd -ddd -f ./sshd_config -h $(pwd)/ssh_host_rsa_key
 
 Start client
-$(pwd)/ssh -vvv -c intermac-128-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
+$(pwd)/ssh -vvv -c im-chacha-poly -o Compression=no localhost -p 22222 -i ./id_rsa_dev
 
-$(pwd)/ssh -vvv -c intermac-256-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
-
-$(pwd)/ssh -vvv -c intermac-512-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
-
-$(pwd)/ssh -vvv -c intermac-1024-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
-
-$(pwd)/ssh -vvv -c intermac-2048-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
-
-$(pwd)/ssh -vvv -c intermac-4096-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
-
-$(pwd)/ssh -vvv -c intermac-8192-aesgcm-128 -o Compression=no localhost -p 22222 -i ./id_rsa_dev
-
-
-Easy test compile:
-
-object code:
-gcc -c test.c im_aes_gcm.c im_chacha_poly.c im_chacha_c im_poly.c im_cipher.c im_core.c 
-
-Link:
-gcc im_aes_gcm.o im_chacha_poly.o im_chacha.o im_poly.o im_cipher.o im_core.o test.o -o test
-
-rm im_aes_gcm.o im_chacha_poly.o im_chacha.o im_poly.o im_cipher.o im_core.o explicit_bzero.o timingsafe_bcmp.o test; gcc -Wno-attributes -c explicit_bzero.c timingsafe_bcmp.c im_aes_gcm.c im_chacha.c im_poly.c im_cipher.c im_chacha_poly.c im_core.c test.c; gcc explicit_bzero.o timingsafe_bcmp.o im_poly.o im_chacha.o im_aes_gcm.o im_chacha_poly.o im_cipher.o im_core.o test.o -o test -lcrypto; ./test
+$(pwd)/ssh -vvv -c im-aes128-gcm -o Compression=no localhost -p 22222 -i ./id_rsa_dev

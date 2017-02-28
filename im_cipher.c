@@ -5,7 +5,7 @@
 
 /* Available ciphers */
 static const struct imcipher ciphers[] = {
-	{"im-aes-gcm-128", 128, 16, 0, im_aes_gcm_init, im_aes_gcm_cipher, IMCIPHER_AES_GCM},
+	{"im-aes128-gcm", 128, 16, 0, im_aes_gcm_init, im_aes_gcm_cipher, IMCIPHER_AES_GCM},
 	{"im-chacha-poly", 256, 16, 0, im_chacha_poly_init, im_chacha_poly_cipher, IMCIPHER_CHACHA_POLY}
 };
 

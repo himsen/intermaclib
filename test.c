@@ -193,7 +193,7 @@ int main(void) {
 
 	//u_char* iv = (u_char*) "111111111111";
 
-	if (im_initialise(&im_encrypt_aes_gcm_ctx, enckey_aes_gcm, 128, "im-aes-gcm-128", IM_CIPHER_ENCRYPT) != 0) {
+	if (im_initialise(&im_encrypt_aes_gcm_ctx, enckey_aes_gcm, 128, "im-aes128-gcm", IM_CIPHER_ENCRYPT) != 0) {
 		return 0;
 	}
 
@@ -251,7 +251,7 @@ int main(void) {
 
 	struct intermac_ctx *im_decrypt_aes_gcm_ctx = NULL;
 
-	if (im_initialise(&im_decrypt_aes_gcm_ctx, enckey_aes_gcm, 128, "im-aes-gcm-128", IM_CIPHER_DECRYPT) != 0) {
+	if (im_initialise(&im_decrypt_aes_gcm_ctx, enckey_aes_gcm, 128, "im-aes128-gcm", IM_CIPHER_DECRYPT) != 0) {
 		return 0;
 	}
 

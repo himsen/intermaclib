@@ -14,7 +14,7 @@
 
 /* Cipher states */
 struct im_cipher_st_ctx {
-	int crypt_type; /* crypt_type = 1 (encryption), crypt_type = 0 (decryption)
+	int crypt_type; /* crypt_type = 1 (encryption), crypt_type = 0 (decryption)*/
 
 	/* im_chacha_poly.c context */
 	struct im_chacha_ctx im_cc_ctx;
@@ -22,5 +22,8 @@ struct im_cipher_st_ctx {
 	/* im_aes_gcm.c context */
 	EVP_CIPHER_CTX *evp;
 };
+
+void im_explicit_bzero(void*, size_t);
+int im_timingsafe_bcmp(const void*, const void*, size_t);
 
 #endif /* IM_CIPHER_INCLUDES_H */

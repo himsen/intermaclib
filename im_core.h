@@ -10,6 +10,7 @@
 /* Error codes */
 
 #define IM_ERR	-1
+#define IM_REKEY -2 /* TODO implement this */
 
 /* Constants */
 
@@ -17,7 +18,6 @@
 #define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
 #define IM_CHUNK_DELIMITER_FINAL '\x62'
 #define IM_CHUNK_DELIMITER_FINAL_NO_PADDING '\x63'
-#define IM_DECRYPT_BUFFER_REALLOC_MULTIPLIER 1 /* Number of chunks that should be reallocated space for during decryption  */
 
 /* Macro's */
 
@@ -57,11 +57,8 @@ struct intermac_ctx {
 	u_int src_processed; /* Counts how many bytes have been processed from input for current invocation of decryption function */
 
 	/* For supporting expandable buffer during decryption */
-	/* TODO: implement simple variable length buffer */
-	u_char *decrypt_buffer;
 	u_int decrypt_buffer_size; 
 	u_int decrypt_buffer_offset;
-	u_int decrypt_buffer_realloc;
 };
 
 /* API */
