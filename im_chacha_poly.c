@@ -70,8 +70,8 @@ int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_c
 		im_poly1305_auth(dst + src_length, dst, src_length, poly_key);
 	}
 
-	im_explicit_bzero(expected_tag, IM_POLY1305_TAGLEN);
-	im_explicit_bzero(poly_key, IM_POLY1305_KEYLEN);
+	//im_explicit_bzero(expected_tag, IM_POLY1305_TAGLEN);
+	//im_explicit_bzero(poly_key, IM_POLY1305_KEYLEN);
 
 	return 0;
 }

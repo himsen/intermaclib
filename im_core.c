@@ -146,6 +146,8 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	_im_ctx->mactag_length = _cipher->tag_len;
 	_im_ctx->chunk_counter = 0;
 	_im_ctx->message_counter = 0;
+	_im_ctx->src_processed = 0;
+	_im_ctx->number_of_chunks = 0;
 
 	_im_ctx->decrypt_buffer_offset = 0;
 	_im_ctx->decrypt_buffer_size = 0;
@@ -267,9 +269,22 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 }
 
 /*
+ * TODO: Write description
+ */
+int im_get_decrypt_buffer_length(struct intermac_ctx *im_ctx, u_int src_length, u_int src_consumed, u_int *res) {
+
+	u_int length = src_length + src_consumed - im_ctx->src_processed;
+	u_int div = length / (im_ctx->ciphertext_length + im_ctx->mactag_length);
+
+	*res = div * (im_ctx->chunk_length - 1);
+
+	return 0;
+}
+
+/*
  * TODO: Write decription
  */
-int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_processed, u_char **dst, u_int *length_decrypted_packet) {
+int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_processed, u_char *dst, u_int *length_decrypted_packet) {
 
 	u_char chunk_delimiter; /* Holds current chunk delimiter */
 	u_char chunk_delimiter_final = IM_CHUNK_DELIMITER_FINAL;
@@ -305,9 +320,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 		memcpy(expected_tag, src + (src_processed + *this_processed + ciphertext_length - src_consumed), mactag_length);
 
-		/* TODO: no guarentee that realloc uses calloc... */ 
 		decrypt_buffer_size = decrypt_buffer_size + (chunk_length - 1);
-		*dst = (u_char*) realloc(*dst, decrypt_buffer_size);
 
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 
@@ -315,12 +328,14 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			return IM_ERR;
 		}
 
-		memcpy(*dst + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
+		memcpy(dst + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
 		chunk_delimiter = decrypted_chunk[chunk_length - 1];
 
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
-		im_ctx->src_processed = src_processed + (ciphertext_length + mactag_length);
+		im_ctx->src_processed = im_ctx->src_processed + (ciphertext_length + mactag_length);
+		*this_processed = *this_processed + (ciphertext_length + mactag_length);
+		im_ctx->decrypt_buffer_size = decrypt_buffer_size;
 
 		/* Check chunk delimiter; if chunk delimiter for final chunk, remove padding (if any) */
 		if (!memcmp(&chunk_delimiter, &chunk_delimiter_final, 1)) {
@@ -334,9 +349,6 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			/* Final chunk processed but there is no padding */
 			break;
 		}
-
-		im_ctx->decrypt_buffer_size = decrypt_buffer_size;
-		*this_processed = *this_processed + (ciphertext_length + mactag_length);
 	}
 
 	*length_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
@@ -365,9 +377,8 @@ int im_cleanup(struct intermac_ctx *im_ctx) {
 }
 
 /* TODO: remove */
-void
-dump_data(const void *s, size_t len, FILE *f)
-{
+void im_dump_data(const void *s, size_t len, FILE *f) {
+
 	size_t i, j;
 	const u_char *p = (const u_char *)s;
 

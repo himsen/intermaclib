@@ -2,7 +2,6 @@ TODO
 
  - Write decryption function description
  - Implement clean up functions (function pointers in general cipher struct)
-
  - Write nice (easy to read and extend) tests
  - Add guards for calling functions too many times (data limits)
  - Make more portable with size_t instead of u_int (or understand what is the difference)
@@ -10,11 +9,13 @@ TODO
  - Add support for authenticated additional data
  - Implement re-key
  - Add fake parse after recieving final chunk?
+ - Does GIT use SSH?
 
  - (DONE) Implement MAKE file
  - (DONE) Implement AES-GCM support (use NI) or make comparable with OpenSSH?
  - (DONE) Integrate into OpenSSH
  - (DONE (somewhat)) Refactor to constant time online encryption/decryption
+
  NOTES
 
  - Per packet timing leak is bad
@@ -26,7 +27,7 @@ TODO
 
  PAPER
 
- - Document design decisions 
+ - Document design decisions
  - Discuss why we can't do exponential forecating 
  - Discuss why are we trying to acheive boundary hidinng
  - Pseudo descriptions 

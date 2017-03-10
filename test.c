@@ -43,7 +43,7 @@ int main(void) {
 	u_char dst[dst_length];
 
 	printf("Encrypting:\n");
-	dump_data(src, src_length, stderr);
+	im_dump_data(src, src_length, stderr);
 
 	if (im_encrypt(im_encrypt_ctx, dst, src, src_length) != 0) {
 		return 0;
@@ -60,7 +60,7 @@ int main(void) {
 	u_char dst2[dst_length2];
 
 	printf("Encrypting:\n");
-	dump_data(src2, src_length2, stderr);
+	im_dump_data(src2, src_length2, stderr);
 
 	if (im_encrypt(im_encrypt_ctx, dst2, src2, src_length2) != 0) {
 		return 0;
@@ -77,7 +77,7 @@ int main(void) {
 	u_char dst3[dst_length3];
 
 	printf("Encrypting:\n");
-	dump_data(src3, src_length3, stderr);
+	im_dump_data(src3, src_length3, stderr);
 
 	if (im_encrypt(im_encrypt_ctx, dst3, src3, src_length3) != 0) {
 		return 0;
@@ -94,7 +94,7 @@ int main(void) {
 	u_char dst4[dst_length4];
 
 	printf("Encrypting:\n");
-	dump_data(src4, src_length4, stderr);
+	im_dump_data(src4, src_length4, stderr);
 
 
 	if (im_encrypt(im_encrypt_ctx, dst4, src4, src_length4) != 0) {
@@ -133,7 +133,7 @@ int main(void) {
 	}
 
 	printf("Decrypted 1:\n");
-	dump_data(decrypted_packet, length_decrypted_packet, stderr);
+	im_dump_data(decrypted_packet, length_decrypted_packet, stderr);
 
 	u_char *decrypted_packet2;
 	u_int this_processed2 = 0;
@@ -144,7 +144,7 @@ int main(void) {
 	}
 
 	printf("Decrypted 2:\n");
-	dump_data(decrypted_packet2, length_decrypted_packet2, stderr);
+	im_dump_data(decrypted_packet2, length_decrypted_packet2, stderr);
 
 	u_char *decrypted_packet3;
 	u_int this_processed3 = 0;
@@ -155,7 +155,7 @@ int main(void) {
 	}
 
 	printf("Decrypted 3:\n");
-	dump_data(decrypted_packet3, length_decrypted_packet3, stderr);
+	im_dump_data(decrypted_packet3, length_decrypted_packet3, stderr);
 
 	u_char *decrypted_packet4;
 	u_int this_processed4 = 0;
@@ -170,7 +170,7 @@ int main(void) {
 	}
 
 	printf("Decrypted 4:\n");
-	dump_data(decrypted_packet4, length_decrypted_packet4, stderr);
+	im_dump_data(decrypted_packet4, length_decrypted_packet4, stderr);
 
 
 	if (im_cleanup(im_decrypt_ctx) != 0) {
@@ -217,7 +217,7 @@ int main(void) {
 	u_char _dst[_dst_length];
 
 	printf("Encrypting:\n");
-	dump_data(_src, _src_length, stderr);
+	im_dump_data(_src, _src_length, stderr);
 
 	if (im_encrypt(im_encrypt_aes_gcm_ctx, _dst, _src, _src_length) != 0) {
 		printf("fails encrypt\n");
@@ -235,7 +235,7 @@ int main(void) {
 	u_char _dst2[_dst_length2];
 
 	printf("Encrypting:\n");
-	dump_data(_src2, _src_length2, stderr);
+	im_dump_data(_src2, _src_length2, stderr);
 
 
 	if (im_encrypt(im_encrypt_aes_gcm_ctx, _dst2, _src2, _src_length2) != 0) {
@@ -265,7 +265,7 @@ int main(void) {
 	}
 
 	printf("Decrypted (aes-gcm) 1:\n");
-	dump_data(_decrypted_packet, _length_decrypted_packet, stderr);
+	im_dump_data(_decrypted_packet, _length_decrypted_packet, stderr);
 
 
 	u_char *_decrypted_packet2;
@@ -281,7 +281,7 @@ int main(void) {
 	}
 
 	printf("Decrypted 4:\n");
-	dump_data(_decrypted_packet2, _length_decrypted_packet2, stderr);
+	im_dump_data(_decrypted_packet2, _length_decrypted_packet2, stderr);
 
 
 	printf("Intermac tests done\n");

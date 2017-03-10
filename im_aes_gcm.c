@@ -34,26 +34,22 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char 
 
 		/* Sets the MAC tag */
 		if(EVP_CIPHER_CTX_ctrl(im_cs_ctx->evp, EVP_CTRL_GCM_SET_TAG, 16, (u_char *) src + src_length) == 0) {
-			printf("f\n");
 			return -1;
 		}
 	}
 
 	/* Set new nonce */
 	if (EVP_CipherInit(im_cs_ctx->evp, NULL, NULL, nonce, crypt_type) == 0) {
-
 		return -1;
 	}
 
 	/* Encrypt/decrypt */
 	if (EVP_Cipher(im_cs_ctx->evp, dst, src, src_length) < 0) {
-		printf("fff\n");
 		return -1;
 	}
 
 	/* Verify (on derypt) or compute (on encrypt) MAC tag */
 	if (EVP_Cipher(im_cs_ctx->evp, NULL, NULL, 0) < 0) {
-		printf("ffff\n");
 		return -1;
 	}
 	
@@ -61,7 +57,6 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char 
 
 		/* Set tag */
 		if (EVP_CIPHER_CTX_ctrl(im_cs_ctx->evp, EVP_CTRL_GCM_GET_TAG, 16, dst + src_length) == 0) {
-			printf("fffff\n");
 			return -1;
 		}
 	}

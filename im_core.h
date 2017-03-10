@@ -66,7 +66,8 @@ struct intermac_ctx {
 int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*, int);
 int im_get_length(struct intermac_ctx*, u_int, u_int*);
 int im_encrypt(struct intermac_ctx*, u_char*, const u_char*, u_int);
-int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char**, u_int*);
+int im_get_decrypt_buffer_length(struct intermac_ctx*, u_int, u_int, u_int*);
+int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char*, u_int*);
 int im_cleanup(struct intermac_ctx*);
 
 /* Internal functions */
@@ -76,6 +77,6 @@ int im_add_alternating_padding(u_char*, u_char, u_int, u_int);
 int im_padding_length_decrypt(u_char*, u_int, u_int*);
 void im_encode_nonce(u_char*, u_int, u_int);
 
-void dump_data(const void*, size_t, FILE*); /* TODO: remove */
+void im_dump_data(const void*, size_t, FILE*); /* TODO: remove */
 
 #endif /* IM_CORE_H */
