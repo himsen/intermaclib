@@ -2,7 +2,7 @@
 
 set -o pipefail
 
-BYTES=1MB
+BYTES=1GB
 HOST=localhost
 PORT=22222
 ID=id_rsa_im
@@ -49,57 +49,97 @@ echo ""
 echo "scp test files"
 echo ""
 
-scp_cipher_mac "aes128-ctr" "hmac-md5"
+#scp_cipher_mac "aes128-ctr" "hmac-md5"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes128-ctr" "hmac-md5-etm@openssh.com"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes128-ctr" "umac-64-etm@openssh.com"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes128-cbc" "hmac-md5"
+
+#rm_at_remote
+
+#scp_auth_cipher "chacha20-poly1305@openssh.com"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes128-ctr" "hmac-sha1"
+
+#rm_at_remote
+
+#scp_cipher_mac "3des-cbc" "hmac-md5"
+
+#rm_at_remote
+
+#scp_auth_cipher "aes128-gcm@openssh.com"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes256-ctr" "hmac-sha2-512"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes128-cbc" "hmac-sha1"
+
+#rm_at_remote
+
+#scp_cipher_mac "aes128-ctr" "hmac-ripemd160"
+
+#rm_at_remote
+
+#scp_auth_cipher "im-aes128-gcm-128"
+
+#rm_at_remote
+
+#scp_auth_cipher "im-chacha-poly-128"
+
+#rm_at_remote
+
+scp_auth_cipher "im-aes128-gcm-256"
 
 rm_at_remote
 
-scp_cipher_mac "aes128-ctr" "hmac-md5-etm@openssh.com"
+scp_auth_cipher "im-chacha-poly-256"
 
 rm_at_remote
 
-scp_cipher_mac "aes128-ctr" "umac-64-etm@openssh.com"
+#scp_auth_cipher "im-aes128-gcm-512"
 
-rm_at_remote
+#rm_at_remote
 
-scp_cipher_mac "aes128-cbc" "hmac-md5"
+#scp_auth_cipher "im-chacha-poly-512"
 
-rm_at_remote
+#rm_at_remote
 
-scp_auth_cipher "chacha20-poly1305@openssh.com"
+#scp_auth_cipher "im-aes128-gcm-1024"
 
-rm_at_remote
+#rm_at_remote
 
-scp_cipher_mac "aes128-ctr" "hmac-sha1"
+#scp_auth_cipher "im-chacha-poly-1024"
 
-rm_at_remote
+#rm_at_remote
 
-scp_cipher_mac "3des-cbc" "hmac-md5"
+#scp_auth_cipher "im-aes128-gcm-2048"
 
-rm_at_remote
+#rm_at_remote
 
-scp_auth_cipher "aes128-gcm@openssh.com"
+#scp_auth_cipher "im-chacha-poly-2048"
 
-rm_at_remote
+#rm_at_remote
 
-scp_cipher_mac "aes256-ctr" "hmac-sha2-512"
+#scp_auth_cipher "im-aes128-gcm-4096"
 
-rm_at_remote
+#rm_at_remote
 
-scp_cipher_mac "aes128-cbc" "hmac-sha1"
+#scp_auth_cipher "im-chacha-poly-4096"
 
-rm_at_remote
-
-scp_cipher_mac "aes128-ctr" "hmac-ripemd160"
-
-rm_at_remote
-
-scp_auth_cipher "im-aes128-gcm"
-
-rm_at_remote
-
-scp_auth_cipher "im-chacha-poly"
-
-rm_at_remote
+#rm_at_remote
 
 rm $DATA_FILE_NAME
 

@@ -24,7 +24,7 @@ int im_padding_length_encrypt(u_int length, u_int chunk_length, u_int number_of_
 
 	*res = padding_length % chunk_length; /* If we are on a boundary set padding to 0 */
 
-	return 0;
+	return IM_OK;
 }
 
 /*
@@ -189,10 +189,9 @@ int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
 
 /*
  * intermac encrypts 'src_length' bytes from 'src' and puts the result in 'dst'
- * im_get_length() must be called before this function
- * Enough memory must have been allocated at '*dst'. 
+ * Handles memory allocation for 'dst'
  */
-int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_int src_length) {
+int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, const u_char *src, u_int src_length) {
 
 	u_int padding_length;
 	u_int padding_offset;
@@ -212,12 +211,22 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char *dst, const u_char *src, u_in
 	u_char chunk_delimiter_final_no_padding = IM_CHUNK_DELIMITER_FINAL_NO_PADDING;
 	u_char nonce[IM_NONCE_LENGTH];
 
-	if (number_of_chunks == 0) {
+	/* Compute size (in bytes) of final ciphertext */
+	if (im_get_length(im_ctx, src_length, dst_length) != 0) {
 		return IM_ERR;
 	}
-	
-	/* Length of padding */ 
-	im_padding_length_encrypt(src_length, chunk_length, number_of_chunks, &padding_length);
+
+	/* Allocate memory for final ciphertext */
+	*dst = (u_char *) calloc(1, *dst_length);
+
+	if (*dst == NULL) {
+		return IM_ERR;
+	}
+
+	/* Compiute size (in bytes) of padding */ 
+	if (im_padding_length_encrypt(src_length, chunk_length, number_of_chunks, &padding_length) != IM_OK) {
+		return IM_ERR;
+	}
 
 	padding_offset = chunk_length - padding_length - 1; /* Minus 1 because of chunk delimiter */
 
