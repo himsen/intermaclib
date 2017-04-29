@@ -287,19 +287,6 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 }
 
 /*
- * TODO: Write description
- */
-int im_get_decrypt_buffer_length(struct intermac_ctx *im_ctx, u_int src_length, u_int src_consumed, u_int *res) {
-
-	u_int length = src_length + src_consumed - im_ctx->src_processed;
-	u_int div = length / (im_ctx->ciphertext_length + im_ctx->mactag_length);
-
-	*res = div * (im_ctx->chunk_length - 1);
-
-	return 0;
-}
-
-/*
  * To avoid leaking boundary, should do dummy decryptions if the entire ciphertext fragment is not decrypted. 
  */
 int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_src_processed, u_char **dst, u_int *size_decrypted_packet, u_int *total_allocated) {
@@ -327,8 +314,6 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 	for (;;) {
 
-		fprintf(stderr, "Start of decrypt loop\n");
-
 		chunk_counter = im_ctx->chunk_counter;
 		message_counter = im_ctx->message_counter;
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
@@ -345,19 +330,12 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 
-		fprintf(stderr, "Decryption chunk\n");
-
 		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_processed + *this_src_processed - src_consumed), chunk_length) != 0) {
-			fprintf(stderr, "FAILED...");
 			return IM_ERR;
 		}
 
-		fprintf(stderr, "Decryption finished\n");
-
 		memcpy(decryption_buffer + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
 		chunk_delimiter = decrypted_chunk[chunk_length - 1];
-
-		fprintf(stderr, "Copying finished\n");
 
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
