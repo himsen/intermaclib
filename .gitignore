@@ -4,3 +4,6 @@ saving.c
 intermac-integration.c
 intermac-integration.h
 *.a
+im_aes_gcm
+intermaclib
+testintermac

@@ -4,7 +4,7 @@ set -o pipefail
 
 BYTES=1GB
 HOST=localhost
-PORT=22222
+PORT=22221
 ID=id_rsa_im
 ID_LOCATION=.
 DATA_FILE_NAME=output.dat

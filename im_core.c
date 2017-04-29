@@ -96,6 +96,35 @@ int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_lengt
 }
 
 /*
+ * Returns the length of the ciphertext when a string of length 'length'
+ * is encrypted using intermac.
+ */
+int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
+
+	int noc; /* Number of chunks */
+
+	/* div_roundup computation does not work for these specific values */
+	if (length == 0 || im_ctx->chunk_length == 1) {
+		return IM_ERR;
+	}
+
+	/* Computes number of chunks needed */
+	noc = im_div_roundup(length, im_ctx->chunk_length - 1); 
+
+	/* 
+	 * Intermac ciphetext consists of 
+	 * 'noc' encrypted chunks of length 'ciphertext_length' and 
+	 * 'noc' MAC tags of length 'mactag_length'
+	 */
+	*res = (im_ctx->ciphertext_length * noc) + (im_ctx->mactag_length * noc);
+
+	/* Save number of chunks */
+	im_ctx->number_of_chunks = noc; 
+
+	return 0;
+}
+
+/*
  * Encodes the nonce from 'chunk_counter' and 'message_counter'.
  * 'chunk_counter' treated as 32 bit and 'message_counter' is treated as 64 bit.
  * Nonce is encoded as
@@ -126,9 +155,10 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	const struct imcipher *_cipher = calloc(1, sizeof(*_cipher));
 	struct im_cipher_st_ctx _im_cs_ctx;
 
-	/* Retrieve the chosen cipher (if exists) */
+	/* Retrieve the chosen cipher */
 	_cipher = im_get_cipher(cipher);
 
+	/* Did the cipher exist? */
 	if (_cipher == NULL) {
 		return IM_ERR;
 	}
@@ -150,7 +180,9 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	_im_ctx->number_of_chunks = 0;
 
 	_im_ctx->decrypt_buffer_offset = 0;
-	_im_ctx->decrypt_buffer_size = 0;
+	_im_ctx->decrypt_buffer_allocated = IM_DECRYPTION_BUFFER_LENGTH;
+
+	_im_ctx->decryption_buffer = (u_char*) malloc(IM_DECRYPTION_BUFFER_LENGTH * sizeof(u_char));
 
 	_im_c_ctx->cipher = _cipher;
 	_im_c_ctx->im_cs_ctx = _im_cs_ctx;
@@ -161,35 +193,9 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 }
 
 /*
- * Returns the length of the ciphertext when a string of length 'length'
- * is encrypted using intermac.
- * This function must be called before im_encrypt()
- */
-int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
-
-	int noc; /* Number of chunks */
-
-	/* div_roundup computation does not work for these specific values */
-	if (length == 0 || im_ctx->chunk_length == 1) {
-		return IM_ERR;
-	}
-
-	noc = im_div_roundup(length, im_ctx->chunk_length - 1); /* Computes number of chunks needed */
-
-	/* Intermac ciphetext consists of 
-	 * 'noc' encrypted chunks of length 'ciphertext_length' and 
-	 * 'noc' MAC tags of length 'mactag_length'
-	 */
-	*res = (im_ctx->ciphertext_length * noc) + (im_ctx->mactag_length * noc);
-
-	im_ctx->number_of_chunks = noc; /* Save number of chunks needed for subsequent call to im_encrypt()*/
-
-	return 0;
-}
-
-/*
- * intermac encrypts 'src_length' bytes from 'src' and puts the result in 'dst'
+ * Intermac-encrypts 'src_length' bytes from 'src' and puts the result in 'dst'
  * Handles memory allocation for 'dst'
+ * Caller must free 'dst'
  */
 int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, const u_char *src, u_int src_length) {
 
@@ -198,7 +204,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 	u_int k; /* Counter for processing the (k+1)th chunk of the unencoded message */
 	u_int p; /* Offset to current plaintext */
 	u_int pp; /* Offset to current destination for ciphertext */
-	u_int number_of_chunks = im_ctx->number_of_chunks;
+	u_int number_of_chunks;
 	u_int chunk_length = im_ctx->chunk_length;
 	u_int ciphertext_length = im_ctx->ciphertext_length;
 	u_int mactag_length = im_ctx->mactag_length;
@@ -216,6 +222,8 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 		return IM_ERR;
 	}
 
+	number_of_chunks = im_ctx->number_of_chunks;
+
 	/* Allocate memory for final ciphertext */
 	*dst = (u_char *) calloc(1, *dst_length);
 
@@ -223,16 +231,17 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 		return IM_ERR;
 	}
 
-	/* Compiute size (in bytes) of padding */ 
+	/* Compute size (in bytes) of padding */ 
 	if (im_padding_length_encrypt(src_length, chunk_length, number_of_chunks, &padding_length) != IM_OK) {
 		return IM_ERR;
 	}
 
-	padding_offset = chunk_length - padding_length - 1; /* Minus 1 because of chunk delimiter */
+	/* Subtract 1 because of chunk delimiter */
+	padding_offset = chunk_length - padding_length - 1; 
 
 	/* 
 	 * Loop that encrypts each chunk and computes MAC tag
-	 * Concatenates result to destination buffer 'dst'
+	 * Put results in destination buffer 'dst'
 	 */
 	for (k = 0; k < number_of_chunks; k++) {
 
@@ -263,7 +272,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 		
 		/* Encrypts chunk and computes MAC tag using chosen cipher */
-		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, dst + pp, chunkbuf, chunk_length) != 0) {
+		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, *dst + pp, chunkbuf, chunk_length) != 0) {
 			return IM_ERR;
 		}
 
@@ -291,11 +300,12 @@ int im_get_decrypt_buffer_length(struct intermac_ctx *im_ctx, u_int src_length, 
 }
 
 /*
- * TODO: Write decription
+ * To avoid leaking boundary, should do dummy decryptions if the entire ciphertext fragment is not decrypted. 
  */
-int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_processed, u_char *dst, u_int *length_decrypted_packet) {
+int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_src_processed, u_char **dst, u_int *size_decrypted_packet, u_int *total_allocated) {
 
-	u_char chunk_delimiter; /* Holds current chunk delimiter */
+	u_char *decryption_buffer = im_ctx->decryption_buffer;
+	u_char chunk_delimiter; /* Current chunk delimiter */
 	u_char chunk_delimiter_final = IM_CHUNK_DELIMITER_FINAL;
 	u_char chunk_delimiter_final_no_padding = IM_CHUNK_DELIMITER_FINAL_NO_PADDING;
 
@@ -307,44 +317,52 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_int chunk_counter;
 	u_int message_counter;
 	u_int decrypt_buffer_offset;
-	u_int decrypt_buffer_size;
 
 	u_char decrypted_chunk[chunk_length];
 	u_char expected_tag[mactag_length];
 	u_char nonce[IM_NONCE_LENGTH];
 
-	*length_decrypted_packet = 0;
-	*this_processed = 0; /* How much data have been processed on 'this' call at any given time */
+	*size_decrypted_packet = 0;
+	*this_src_processed = 0; /* How much data have been processed on 'this' call at any given time */
 
 	for (;;) {
 
+		fprintf(stderr, "Start of decrypt loop\n");
+
 		chunk_counter = im_ctx->chunk_counter;
 		message_counter = im_ctx->message_counter;
-		decrypt_buffer_size = im_ctx->decrypt_buffer_size;
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
-		if (src_length + src_consumed - src_processed - *this_processed < ciphertext_length + mactag_length) {
-			return 0;
-		}
-
-		memcpy(expected_tag, src + (src_processed + *this_processed + ciphertext_length - src_consumed), mactag_length);
-
-		decrypt_buffer_size = decrypt_buffer_size + (chunk_length - 1);
-
-		im_encode_nonce(nonce, chunk_counter, message_counter);
-
-		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_processed + *this_processed - src_consumed), chunk_length) != 0) {
+		if (decrypt_buffer_offset + (chunk_length - 1) > IM_DECRYPTION_BUFFER_LENGTH) {
 			return IM_ERR;
 		}
 
-		memcpy(dst + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
+		if (src_length + src_consumed - src_processed - *this_src_processed < ciphertext_length + mactag_length) {
+			return IM_OK; /* Wait for more bytes */
+		}
+
+		memcpy(expected_tag, src + (src_processed + *this_src_processed + ciphertext_length - src_consumed), mactag_length);
+
+		im_encode_nonce(nonce, chunk_counter, message_counter);
+
+		fprintf(stderr, "Decryption chunk\n");
+
+		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_processed + *this_src_processed - src_consumed), chunk_length) != 0) {
+			fprintf(stderr, "FAILED...");
+			return IM_ERR;
+		}
+
+		fprintf(stderr, "Decryption finished\n");
+
+		memcpy(decryption_buffer + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
 		chunk_delimiter = decrypted_chunk[chunk_length - 1];
+
+		fprintf(stderr, "Copying finished\n");
 
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
 		im_ctx->src_processed = im_ctx->src_processed + (ciphertext_length + mactag_length);
-		*this_processed = *this_processed + (ciphertext_length + mactag_length);
-		im_ctx->decrypt_buffer_size = decrypt_buffer_size;
+		*this_src_processed = *this_src_processed + (ciphertext_length + mactag_length);
 
 		/* Check chunk delimiter; if chunk delimiter for final chunk, remove padding (if any) */
 		if (!memcmp(&chunk_delimiter, &chunk_delimiter_final, 1)) {
@@ -360,9 +378,10 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		}
 	}
 
-	*length_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
+	*dst = decryption_buffer;
+	*size_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
+	*total_allocated = im_ctx->decrypt_buffer_allocated;
 	im_ctx->message_counter = message_counter + 1;
-	im_ctx->decrypt_buffer_size = 0;
 	im_ctx->decrypt_buffer_offset = 0;
 	im_ctx->chunk_counter = 0;
 	im_ctx->src_processed = 0;

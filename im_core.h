@@ -18,6 +18,7 @@
 
 /* Constants */
 
+#define IM_DECRYPTION_BUFFER_LENGTH (256*1024)
 #define IM_NONCE_LENGTH 12
 #define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
 #define IM_CHUNK_DELIMITER_FINAL '\x62'
@@ -58,24 +59,25 @@ struct intermac_ctx {
 	u_int ciphertext_length; /*  Length of resulting ciphertext after encrypting 'chunk_length' bytes, for chosen encryption function (counted in bytes) */
 	u_int mactag_length; /* Length of MAC tag (counted in bytes) */
 	u_int number_of_chunks; /* Number of chunks of current message being encrypted(set in im_get_length) */ 
-	u_int src_processed; /* Counts how many bytes have been processed from input for current invocation of decryption function */
 
-	/* For supporting expandable buffer during decryption */
-	u_int decrypt_buffer_size; 
+	/* Decryption specific */
+	u_char *decryption_buffer; 
 	u_int decrypt_buffer_offset;
+	u_int decrypt_buffer_allocated;
+	u_int src_processed; /* Counts how many bytes have been processed from input for current invocation of decryption function */
 };
 
 /* API */
 
 int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*, int);
-int im_get_length(struct intermac_ctx*, u_int, u_int*);
 int im_encrypt(struct intermac_ctx*, u_char**, u_int*, const u_char*, u_int);
-int im_get_decrypt_buffer_length(struct intermac_ctx*, u_int, u_int, u_int*);
-int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char*, u_int*);
+int im_get_decrypt_buffer_length(struct intermac_ctx*, u_int, u_int, u_int*); /* Should remove */
+int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char**, u_int*, u_int*);
 int im_cleanup(struct intermac_ctx*);
 
 /* Internal functions */
 
+int im_get_length(struct intermac_ctx*, u_int, u_int*);
 int im_padding_length_encrypt(u_int, u_int, u_int, u_int*);
 int im_add_alternating_padding(u_char*, u_char, u_int, u_int);
 int im_padding_length_decrypt(u_char*, u_int, u_int*);
