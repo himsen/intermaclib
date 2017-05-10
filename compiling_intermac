@@ -18,7 +18,6 @@ $(pwd)/ssh -vvv -c im-chacha-poly-128 -o Compression=no localhost -p 22221 -i ./
 $(pwd)/ssh -vvv -c im-aes128-gcm-128 -o Compression=no localhost -p 22221 -i ./id_rsa_im
 
 
-
 ($(pwd)/ssh -o Compression=no -2 -c aes128-gcm@openssh.com localhost -p 22221 -i ./id_rsa_im exec bash -c \'"dd of=/dev/null obs=32k"\' < DATA ) 2>&1
 
 

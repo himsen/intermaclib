@@ -69,7 +69,7 @@ int im_padding_length_decrypt(u_char *decrypted_chunk, u_int chunk_length, u_int
 
 /*
  * Adds aternating padding to a chunk
- * Padding byte depends on the late by in 'src'
+ * Padding byte depends on the last byte in 'src'
  */
 int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_length, u_int chunk_length) {
 
@@ -146,17 +146,20 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	int r; /* Error */
 
 	u_char nonce[IM_NONCE_LENGTH];
+	struct im_cipher_st_ctx _im_cs_ctx;
 
 	/* Allocate contexts */
 	*im_ctx = NULL;
 
-	struct intermac_ctx *_im_ctx = calloc(1, sizeof(*_im_ctx));
-	struct imcipher_ctx *_im_c_ctx = calloc(1, sizeof(*_im_c_ctx));
-	const struct imcipher *_cipher = calloc(1, sizeof(*_cipher));
-	struct im_cipher_st_ctx _im_cs_ctx;
+	struct intermac_ctx *_im_ctx = NULL;
+	if ((_im_ctx = calloc(1, sizeof(*_im_ctx))) == NULL) 
+		return IM_ERR;
+	struct im_cipher_ctx *_im_c_ctx = NULL;
+	if ((_im_c_ctx = calloc(1, sizeof(*_im_c_ctx))) == NULL) 
+		return IM_ERR;
 
 	/* Retrieve the chosen cipher */
-	_cipher = im_get_cipher(cipher);
+	const struct im_cipher * _cipher = im_get_cipher(cipher);
 
 	/* Did the cipher exist? */
 	if (_cipher == NULL) {
@@ -368,16 +371,39 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 }
 
 /* 
- * TODO: write proper clean up functions 
+ * Clean up.
  */
 int im_cleanup(struct intermac_ctx *im_ctx) {
 
-	//printf("enter im_free()\n");
+	if (im_ctx == NULL)
+		return 0;
 
-	/* TODO: If OpenSSL, clean up contexts */
+	/* Clean up internal cipher specifics */
+	if (im_ctx->im_c_ctx->cipher->cleanup(&im_ctx->im_c_ctx->im_cs_ctx) != 0)
+		return IM_ERR; 
 
-	//free(im_ctx->im_c_ctx);
+	fprintf(stderr, "hi 1\n");
+
+	/* Clean up cipher specifics */
+	im_explicit_bzero(&im_ctx->im_c_ctx->im_cs_ctx, sizeof(im_ctx->im_c_ctx->im_cs_ctx));
+	fprintf(stderr, "hi 2\n");
+	im_explicit_bzero(im_ctx->im_c_ctx, sizeof(*im_ctx->im_c_ctx));
+	fprintf(stderr, "hi 3\n");
+	free(im_ctx->im_c_ctx);	
+	im_ctx->im_c_ctx = NULL;
+	fprintf(stderr, "hi 4\n");
+	/* Clean up decryption buffer */
+	im_explicit_bzero(im_ctx->decryption_buffer, IM_DECRYPTION_BUFFER_LENGTH * sizeof(u_char));
+		fprintf(stderr, "hi 5\n");
+	free(im_ctx->decryption_buffer);
+	im_ctx->decryption_buffer = NULL;
+	fprintf(stderr, "hi 6\n");
+	/* Lastly, clean up the intermac context */
+	im_explicit_bzero(im_ctx, sizeof(*im_ctx));
+		fprintf(stderr, "hi 7\n");
 	//free(im_ctx);
+	im_ctx = NULL;
+	fprintf(stderr, "hi 8\n");
 
 	return 0;
 }

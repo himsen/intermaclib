@@ -51,7 +51,7 @@
 /* Intermac context definition */
 
 struct intermac_ctx {
-	struct imcipher_ctx *im_c_ctx;
+	struct im_cipher_ctx *im_c_ctx;
 
 	u_int chunk_length; /* Includes chunk delimiter */
 	u_int chunk_counter; /* Incremented by one for each new chunk; reset for each new message */

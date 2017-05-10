@@ -6,7 +6,7 @@ OBJS=im_chacha.o im_poly.o im_chacha_poly.o im_aes_gcm.o im_cipher.o im_core.o e
 OBJSTEST=test.o im_chacha.o im_poly.o im_chacha_poly.o im_aes_gcm.o im_cipher.o im_core.o explicit_bzero.o timingsafe_bcmp.o
 DEPS=im_chacha.h im_poly.h im_chacha_poly.h im_aes_gcm.h im_cipher_includes.h im_cipher.h im_core.h
 
-all: testintermac libintermac.a
+all: libintermac.a testintermac
 
 %.o : %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
