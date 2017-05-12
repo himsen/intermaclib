@@ -373,37 +373,36 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 /* 
  * Clean up.
  */
-int im_cleanup(struct intermac_ctx *im_ctx) {
+void im_cleanup(struct intermac_ctx *im_ctx) {
 
 	if (im_ctx == NULL)
 		return 0;
 
 	/* Clean up internal cipher specifics */
-	if (im_ctx->im_c_ctx->cipher->cleanup(&im_ctx->im_c_ctx->im_cs_ctx) != 0)
-		return IM_ERR; 
+	if (im_ctx->im_c_ctx != NULL) {
+		if (im_ctx->im_c_ctx->cipher != NULL)
+			im_ctx->im_c_ctx->cipher->cleanup(&im_ctx->im_c_ctx->im_cs_ctx);
 
-	fprintf(stderr, "hi 1\n");
+		/* Clean up cipher specifics */
+		if (&im_ctx->im_c_ctx->im_cs_ctx != NULL)
+			im_explicit_bzero(&im_ctx->im_c_ctx->im_cs_ctx, sizeof(im_ctx->im_c_ctx->im_cs_ctx));
 
-	/* Clean up cipher specifics */
-	im_explicit_bzero(&im_ctx->im_c_ctx->im_cs_ctx, sizeof(im_ctx->im_c_ctx->im_cs_ctx));
-	fprintf(stderr, "hi 2\n");
-	im_explicit_bzero(im_ctx->im_c_ctx, sizeof(*im_ctx->im_c_ctx));
-	fprintf(stderr, "hi 3\n");
-	free(im_ctx->im_c_ctx);	
-	im_ctx->im_c_ctx = NULL;
-	fprintf(stderr, "hi 4\n");
+		im_explicit_bzero(im_ctx->im_c_ctx, sizeof(*im_ctx->im_c_ctx));
+		free(im_ctx->im_c_ctx);	
+		im_ctx->im_c_ctx = NULL;
+	}
+
 	/* Clean up decryption buffer */
-	im_explicit_bzero(im_ctx->decryption_buffer, IM_DECRYPTION_BUFFER_LENGTH * sizeof(u_char));
-		fprintf(stderr, "hi 5\n");
-	free(im_ctx->decryption_buffer);
-	im_ctx->decryption_buffer = NULL;
-	fprintf(stderr, "hi 6\n");
-	/* Lastly, clean up the intermac context */
+	if (im_ctx->decryption_buffer != NULL) {
+		im_explicit_bzero(im_ctx->decryption_buffer, IM_DECRYPTION_BUFFER_LENGTH * sizeof(u_char));
+		free(im_ctx->decryption_buffer);
+		im_ctx->decryption_buffer = NULL;		
+	}
+
+	/* Clean up the intermac context */
 	im_explicit_bzero(im_ctx, sizeof(*im_ctx));
-		fprintf(stderr, "hi 7\n");
-	//free(im_ctx);
+	free(im_ctx);
 	im_ctx = NULL;
-	fprintf(stderr, "hi 8\n");
 
 	return 0;
 }

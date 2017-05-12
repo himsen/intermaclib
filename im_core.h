@@ -72,7 +72,7 @@ struct intermac_ctx {
 int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*, int);
 int im_encrypt(struct intermac_ctx*, u_char**, u_int*, const u_char*, u_int);
 int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char**, u_int*, u_int*);
-int im_cleanup(struct intermac_ctx*);
+void im_cleanup(struct intermac_ctx*);
 
 /* Internal functions */
 

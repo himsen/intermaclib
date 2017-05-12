@@ -55,12 +55,10 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char 
 	return 0;
 }
 
-int im_aes_gcm_cleanup(struct im_cipher_st_ctx *im_cs_ctx) {
+void im_aes_gcm_cleanup(struct im_cipher_st_ctx *im_cs_ctx) {
 
 	if (im_cs_ctx->evp != NULL) {
 		EVP_CIPHER_CTX_free(im_cs_ctx->evp);
 		im_cs_ctx->evp = NULL;
 	}
-
-	return 0;
 }

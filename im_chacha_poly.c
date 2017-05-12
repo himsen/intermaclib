@@ -64,9 +64,8 @@ int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_c
 	return 0;
 }
 
-int im_chacha_poly_cleanup(struct im_cipher_st_ctx *im_cs_ctx) {
+void im_chacha_poly_cleanup(struct im_cipher_st_ctx *im_cs_ctx) {
 
-	im_explicit_bzero(&im_cs_ctx->im_cc_ctx, sizeof(im_cs_ctx->im_cc_ctx));
-
-	return 0;
+	if (&im_cs_ctx->im_cc_ctx != NULL)
+		im_explicit_bzero(&im_cs_ctx->im_cc_ctx, sizeof(im_cs_ctx->im_cc_ctx));
 }
