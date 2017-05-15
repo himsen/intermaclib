@@ -1,8 +1,8 @@
-#1/usr/bin/env bash
+#!/usr/bin/env bash
 
 set -o pipefail
 
-BYTES=1GB
+BYTES=10MB
 HOST=localhost
 PORT=22221
 ID=id_rsa_im
@@ -12,6 +12,10 @@ TEST_DATA_FOLDER_NAME=testdata
 REMOTE_LOCATION=Projects/intermaclib/im-performance/$TEST_DATA_FOLDER_NAME/$DATA_FILE_NAME
 REMOTE_PREFIX=home/himsen
 SCP=$(pwd)/scp
+DATE=`date +%Y-%m-%d:%H:%M:%S`
+LOG_FILE_NAME=$DATE\_scp.log
+GREP_SCP='Bytes per second\|Bytes encrypted sent\|Bytes raw sent'
+
 
 rm_at_remote () {
 
@@ -23,16 +27,18 @@ scp_cipher_mac () {
 
 	CIPHER=$1
 	MAC=$2
-	echo "$CIPHER + $MAC: "
-	$SCP -c $CIPHER -o "MACs $MAC" -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION
+	echo "$CIPHER + $MAC"
+	echo "$CIPHER+$MAC" >> $LOG_FILE_NAME
+	$SCP -v -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
 scp_auth_cipher () {
 
 	AUTHCIPHER=$1
-	echo "$AUTHCIPHER: "
-	$SCP -c $AUTHCIPHER -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION
+	echo "$AUTHCIPHER"
+	echo "$AUTHCIPHER" >> $LOG_FILE_NAME
+	$SCP -v -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
@@ -40,66 +46,66 @@ echo ""
 echo "-----SCP BENCHMARK START-----"
 echo ""
 
-echo "Construct temp data file:"
+echo "Constructing temp data file:"
 echo "File size: $BYTES"
 
 dd if=/dev/zero of=$DATA_FILE_NAME bs=$BYTES count=1 &> /dev/null
 
 echo ""
-echo "scp test files"
+echo "Executing SCP using cipher suite"
 echo ""
 
-#scp_cipher_mac "aes128-ctr" "hmac-md5"
+scp_cipher_mac "aes128-ctr" "hmac-md5"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes128-ctr" "hmac-md5-etm@openssh.com"
+scp_cipher_mac "aes128-ctr" "hmac-md5-etm@openssh.com"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes128-ctr" "umac-64-etm@openssh.com"
+scp_cipher_mac "aes128-ctr" "umac-64-etm@openssh.com"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes128-cbc" "hmac-md5"
+scp_cipher_mac "aes128-cbc" "hmac-md5"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "chacha20-poly1305@openssh.com"
+scp_auth_cipher "chacha20-poly1305@openssh.com"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes128-ctr" "hmac-sha1"
+scp_cipher_mac "aes128-ctr" "hmac-sha1"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "3des-cbc" "hmac-md5"
+scp_cipher_mac "3des-cbc" "hmac-md5"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "aes128-gcm@openssh.com"
+scp_auth_cipher "aes128-gcm@openssh.com"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes256-ctr" "hmac-sha2-512"
+scp_cipher_mac "aes256-ctr" "hmac-sha2-512"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes128-cbc" "hmac-sha1"
+scp_cipher_mac "aes128-cbc" "hmac-sha1"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_cipher_mac "aes128-ctr" "hmac-ripemd160"
+scp_cipher_mac "aes128-ctr" "hmac-ripemd160"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-aes128-gcm-128"
+scp_auth_cipher "im-aes128-gcm-128"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-chacha-poly-128"
+scp_auth_cipher "im-chacha-poly-128"
 
-#rm_at_remote
+rm_at_remote
 
 scp_auth_cipher "im-aes128-gcm-256"
 
@@ -109,40 +115,39 @@ scp_auth_cipher "im-chacha-poly-256"
 
 rm_at_remote
 
-#scp_auth_cipher "im-aes128-gcm-512"
+scp_auth_cipher "im-aes128-gcm-512"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-chacha-poly-512"
+scp_auth_cipher "im-chacha-poly-512"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-aes128-gcm-1024"
+scp_auth_cipher "im-aes128-gcm-1024"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-chacha-poly-1024"
+scp_auth_cipher "im-chacha-poly-1024"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-aes128-gcm-2048"
+scp_auth_cipher "im-aes128-gcm-2048"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-chacha-poly-2048"
+scp_auth_cipher "im-chacha-poly-2048"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-aes128-gcm-4096"
+scp_auth_cipher "im-aes128-gcm-4096"
 
-#rm_at_remote
+rm_at_remote
 
-#scp_auth_cipher "im-chacha-poly-4096"
+scp_auth_cipher "im-chacha-poly-4096"
 
-#rm_at_remote
+rm_at_remote
 
 rm $DATA_FILE_NAME
-
 
 echo ""
 echo "-----SCP BENCHMARK END-----"
