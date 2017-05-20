@@ -16,7 +16,6 @@ DATE=`date +%Y-%m-%d:%H:%M:%S`
 LOG_FILE_NAME=$DATE\_scp.log
 GREP_SCP='Bytes per second\|Bytes encrypted sent\|Bytes raw sent'
 
-
 rm_at_remote () {
 
 	rm /$REMOTE_PREFIX/$REMOTE_LOCATION

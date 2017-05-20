@@ -3,10 +3,10 @@
 set -o pipefail
 
 BYTES=100MB
-HOST=localhost
+HOST=ubuntu@ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
 PORT=22221
-ID=id_rsa_im
-ID_LOCATION=/home/ubuntu/openssh-portable-intermac
+ID=aws_london
+ID_LOCATION=/home/himsen/Projects/intermaclib/im-performance
 DATA_FILE_NAME=output.dat
 TEST_DATA_FOLDER_NAME=testdata
 REMOTE_LOCATION=intermaclib/im-performance/$TEST_DATA_FOLDER_NAME/$DATA_FILE_NAME
