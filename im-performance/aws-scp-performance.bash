@@ -2,7 +2,8 @@
 
 set -o pipefail
 
-BYTES=500MB
+BYTES=10MB
+SRC_HOST=ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
 HOST=ec2-52-36-141-199.us-west-2.compute.amazonaws.com
 PORT=22221
 ID=aws_us_west_oregon
@@ -28,7 +29,7 @@ scp_cipher_mac () {
 	MAC=$2
 	echo "$CIPHER + $MAC"
 	echo "$CIPHER+$MAC" >> $LOG_FILE_NAME
-	$SCP -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION |& grep "$GREP_SCP" >> $LOG_FILE_NAME
+	$SCP -v -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
@@ -37,7 +38,7 @@ scp_auth_cipher () {
 	AUTHCIPHER=$1
 	echo "$AUTHCIPHER"
 	echo "$AUTHCIPHER" >> $LOG_FILE_NAME
-	$SCP -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION |& grep "$GREP_SCP" >> $LOG_FILE_NAME
+	$SCP -v -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $DATA_FILE_NAME $HOST:$REMOTE_LOCATION |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
@@ -50,6 +51,8 @@ echo "File size: $BYTES"
 
 dd if=/dev/zero of=$DATA_FILE_NAME bs=$BYTES count=1 &> /dev/null
 
+echo $SRC_HOST >> $SRC_HOST
+echo $HOST >> $LOG_FILE_NAME
 echo $bytes >> $LOG_FILE_NAME
 
 echo ""

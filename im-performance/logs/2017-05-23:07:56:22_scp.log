@@ -1,0 +1,26 @@
+ec2-52-36-141-199.us-west-2.compute.amazonaws.com
+
+aes128-ctr+hmac-md5
+Bytes raw sent: 10003947
+Bytes encrypted sent: 17228992
+Bytes per second sent: 2430017.9
+chacha20-poly1305@openssh.com
+Bytes raw sent: 10004003
+Bytes encrypted sent: 15761228
+Bytes per second sent: 2504588.3
+3des-cbc+hmac-md5
+Bytes raw sent: 10004051
+Bytes encrypted sent: 12430936
+Bytes per second sent: 2502306.3
+aes128-gcm@openssh.com
+Bytes raw sent: 10004131
+Bytes encrypted sent: 17289808
+Bytes per second sent: 2521900.6
+im-aes128-gcm-128
+Bytes raw sent: 10003827
+Bytes encrypted sent: 18237920
+Bytes per second sent: 2670626.3
+im-chacha-poly-128
+Bytes raw sent: 10004059
+Bytes encrypted sent: 13912096
+Bytes per second sent: 2768384.1
