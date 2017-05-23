@@ -53,7 +53,7 @@ dd if=/dev/zero of=$DATA_FILE_NAME bs=$BYTES count=1 &> /dev/null
 
 echo $SRC_HOST >> $SRC_HOST
 echo $HOST >> $LOG_FILE_NAME
-echo $bytes >> $LOG_FILE_NAME
+echo $BYTES >> $LOG_FILE_NAME
 
 echo ""
 echo "Executing SCP using cipher suite"

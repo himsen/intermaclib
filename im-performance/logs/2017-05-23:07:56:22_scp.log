@@ -1,5 +1,6 @@
+ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
 ec2-52-36-141-199.us-west-2.compute.amazonaws.com
-
+10MB
 aes128-ctr+hmac-md5
 Bytes raw sent: 10003947
 Bytes encrypted sent: 17228992
