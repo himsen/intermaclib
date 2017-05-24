@@ -35,19 +35,19 @@ INTERMAC_CIPHER_SUITES=("im-aes128-gcm-128" "im-chacha-poly-128" "im-aes128-gcm-
 	"im-chacha-poly-512" "im-aes128-gcm-1024" "im-chacha-poly-1024" "im-aes128-gcm-2048" "im-chacha-poly-2048"
 	"im-aes128-gcm-4096" "im-chacha-poly-4096")
 
-rm_remote_file () {
+rm_remote_data () {
 
 	ssh -i $ID_LOCATION/$ID $REMOTE_USER@$HOST "rm $REMOTE_DATA"
 
 }
 
-rm_local_file() {
+rm_local_data () {
 
 	rm $LOCAL_DATA
 
 }
 
-generate_test_data_file () {
+generate_test_data () {
 	
 	dd if=/dev/zero of=$LOCAL_DATA bs=$BYTES count=1 &> /dev/null
 
@@ -84,7 +84,7 @@ echo $BYTES >> $LOG_FILE_NAME
 echo "Constructing temp data file:"
 echo "File size: $BYTES"
 
-generate_test_data_file
+generate_test_data
 
 echo ""
 echo "Executing SCP using cipher suite"
@@ -94,24 +94,22 @@ echo ""
 for ((i=0; i<${#CIPHER_SUITES[@]}; i+=2));
 do
 	scp_cipher_mac "${CIPHER_SUITES[i]}" "${CIPHER_SUITES[i+1]}"
-	rm_remote_file
 done
 
 # AE cipher suites
 for ((i=0; i<${#AUTH_CIPHER_SUITES[@]}; i+=1));
 do
 	scp_auth_cipher "${AUTH_CIPHER_SUITES[i]}"
-	rm_remote_file
 done
 
 # InterMAC cipher suites
 for ((i=0; i<${#INTERMAC_CIPHER_SUITES[@]}; i+=1));
 do
 	scp_auth_cipher "${INTERMAC_CIPHER_SUITES[i]}"
-	rm_remote_file
 done
 
-rm_local_file
+rm_local_data
+rm_remote_data
 
 echo ""
 echo "-----SCP BENCHMARK END-----"
