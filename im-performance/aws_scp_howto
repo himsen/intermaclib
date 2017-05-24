@@ -1,0 +1,11 @@
+AWS SCP performance test HOWTO
+
+Setup Instances:
+
+Setup Security Group Policy
+
+Setup OpenSSH deamon 
+
+Setup SCP test script
+
+Copy log file to local machine
