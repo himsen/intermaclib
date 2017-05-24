@@ -7,7 +7,7 @@ BYTES=1MB
 
 LOCAL=rhul
 REMOTE=aws_london
-HOST=ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
+HOST=localhost
 PORT=22221
 REMOTE_USER=ubuntu
 SCP=/home/himsen/Projects/openssh-portable-intermac/scp
@@ -20,7 +20,7 @@ LOCAL_DATA_FILE=loc.dat
 LOCAL_DATA_FILE_LOCATION=/home/himsen/Projects/intermaclib/im-performance/$TEST_DATA_FOLDER_NAME
 LOCAL_DATA=$LOCAL_DATA_FILE_LOCATION/$LOCAL_DATA_FILE
 REMOTE_DATA_FILE=remote.dat
-REMOTE_DATA_FILE_LOCATION=intermaclib/im-performance/$TEST_DATA_FOLDER_NAME
+REMOTE_DATA_FILE_LOCATION=/home/himsen/Projects/intermaclib/im-performance/$TEST_DATA_FOLDER_NAME
 REMOTE_DATA=$REMOTE_DATA_FILE_LOCATION/$REMOTE_DATA_FILE
 
 DATE=`date +%Y-%m-%d:%H:%M:%S`
@@ -37,7 +37,7 @@ INTERMAC_CIPHER_SUITES=("im-aes128-gcm-128" "im-chacha-poly-128" "im-aes128-gcm-
 
 rm_remote_data () {
 
-	ssh -i $ID_LOCATION/$ID $REMOTE_USER@$HOST "rm $REMOTE_DATA"
+	rm $REMOTE_DATA
 
 }
 
@@ -49,7 +49,7 @@ rm_local_data () {
 
 generate_test_data () {
 	
-	ssh -i $ID_LOCATION/$ID $REMOTE_USER@$HOST "dd if=/dev/zero of=$REMOTE_DATA bs=$BYTES count=1 &> /dev/null"
+	dd if=/dev/zero of=$LOCAL_DATA bs=$BYTES count=1 &> /dev/null
 
 }
 
@@ -59,7 +59,7 @@ scp_cipher_mac () {
 	MAC=$2
 	echo "$CIPHER + $MAC"
 	echo "$CIPHER+$MAC" >> $LOG_FILE_NAME
-	$SCP -v -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $REMOTE_USER@$HOST:$REMOTE_DATA $LOCAL_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
+	$SCP -v -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $LOCAL_DATA $REMOTE_USER@$HOST:$REMOTE_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
@@ -68,7 +68,7 @@ scp_auth_cipher () {
 	AUTHCIPHER=$1
 	echo "$AUTHCIPHER"
 	echo "$AUTHCIPHER" >> $LOG_FILE_NAME
-	$SCP -v -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $REMOTE_USER@$HOST:$REMOTE_DATA $LOCAL_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
+	$SCP -v -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $LOCAL_DATA $REMOTE_USER@$HOST:$REMOTE_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
