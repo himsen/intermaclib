@@ -6,7 +6,7 @@ UPLOAD_OR_DOWNLOAD=DOWNLOAD
 BYTES=1MB
 
 LOCAL=aws_london
-REMOTE=aws_us_oregon
+REMOTE=aws_us_west_oregon
 HOST=ec2-52-36-141-199.us-west-2.compute.amazonaws.com
 PORT=22221
 REMOTE_USER=ubuntu
