@@ -3,10 +3,10 @@
 set -o pipefail
 
 UPLOAD_OR_DOWNLOAD=UPLOAD
-BYTES=1MB
+BYTES=500MB
 
-LOCAL=rhul
-REMOTE=aws_london
+LOCAL=laptop-rhul
+REMOTE=aws-london
 HOST=ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
 PORT=22221
 REMOTE_USER=ubuntu

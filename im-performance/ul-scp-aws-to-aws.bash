@@ -7,12 +7,12 @@ BYTES=1MB
 
 LOCAL=aws_london
 REMOTE=aws_us_west_oregon
-HOST=ec2-52-36-141-199.us-west-2.compute.amazonaws.com
+HOST=ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
 PORT=22221
 REMOTE_USER=ubuntu
 SCP=/home/ubuntu/openssh-portable-intermac/scp
 
-ID=aws_us_oregon
+ID=aws_london
 ID_LOCATION=/home/ubuntu/intermaclib/im-performance
 
 TEST_DATA_FOLDER_NAME=testdata
