@@ -3,17 +3,17 @@
 set -o pipefail
 
 UPLOAD_OR_DOWNLOAD=UPLOAD
-BYTES=1MB
+BYTES=50MB
 
-LOCAL=rhul
-REMOTE=aws_london
+LOCAL=virtual
+REMOTE=virtual
 HOST=localhost
 PORT=22221
-REMOTE_USER=ubuntu
+REMOTE_USER=himsen
 SCP=/home/himsen/Projects/openssh-portable-intermac/scp
 
-ID=aws_london
-ID_LOCATION=/home/himsen/Projects/intermaclib/im-performance
+ID=id_rsa_im
+ID_LOCATION=/home/himsen/Projects/openssh-portable-intermac
 
 TEST_DATA_FOLDER_NAME=testdata
 LOCAL_DATA_FILE=loc.dat
@@ -59,7 +59,7 @@ scp_cipher_mac () {
 	MAC=$2
 	echo "$CIPHER + $MAC"
 	echo "$CIPHER+$MAC" >> $LOG_FILE_NAME
-	$SCP -v -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $REMOTE_USER@$HOST:$REMOTE_DATA $LOCAL_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
+	$SCP -v -c $CIPHER -o "MACs $MAC" -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $LOCAL_DATA $REMOTE_USER@$HOST:$REMOTE_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 
@@ -68,7 +68,7 @@ scp_auth_cipher () {
 	AUTHCIPHER=$1
 	echo "$AUTHCIPHER"
 	echo "$AUTHCIPHER" >> $LOG_FILE_NAME
-	$SCP -v -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $REMOTE_USER@$HOST:$REMOTE_DATA $LOCAL_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
+	$SCP -v -c $AUTHCIPHER -o 'Compression no' -i $ID_LOCATION/$ID -P $PORT $LOCAL_DATA $REMOTE_USER@$HOST:$REMOTE_DATA |& grep "$GREP_SCP" >> $LOG_FILE_NAME
 
 }
 

@@ -26,7 +26,7 @@ REMOTE_DATA=$REMOTE_DATA_FILE_LOCATION/$REMOTE_DATA_FILE
 DATE=`date +%Y-%m-%d:%H:%M:%S`
 LOG_FILE_NAME=$DATE\_scp.log
 
-GREP_SCP='Bytes per second\|Bytes encrypted sent\|Bytes raw sent'
+GREP_SCP='Bytes per second\|Bytes encrypted received\|Bytes raw received'
 
 CIPHER_SUITES=("aes128-ctr" "hmac-md5" "aes128-ctr" "hmac-md5-etm@openssh.com" "aes128-ctr" "umac-64-etm@openssh.com" "aes128-ctr" 
 	"hmac-sha1" "3des-cbc" "hmac-md5" "aes256-ctr" "hmac-sha2-512" "aes128-cbc" "hmac-sha1" "aes128-ctr" "hmac-ripemd160")
@@ -49,7 +49,7 @@ rm_local_data () {
 
 generate_test_data () {
 	
-	dd if=/dev/zero of=$LOCAL_DATA bs=$BYTES count=1 &> /dev/null
+	ssh -i $ID_LOCATION/$ID $REMOTE_USER@$HOST "dd if=/dev/zero of=$REMOTE_DATA bs=$BYTES count=1 &> /dev/null"
 
 }
 
