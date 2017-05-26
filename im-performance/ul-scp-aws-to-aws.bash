@@ -3,16 +3,16 @@
 set -o pipefail
 
 UPLOAD_OR_DOWNLOAD=UPLOAD
-BYTES=1MB
+BYTES=500MB
 
-LOCAL=aws_london
-REMOTE=aws_us_west_oregon
-HOST=ec2-52-56-140-16.eu-west-2.compute.amazonaws.com
+LOCAL=aws-london
+REMOTE=aws-us-west-oregon
+HOST=ec2-52-36-141-199.us-west-2.compute.amazonaws.com
 PORT=22221
 REMOTE_USER=ubuntu
 SCP=/home/ubuntu/openssh-portable-intermac/scp
 
-ID=aws_london
+ID=aws_us_west_oregon
 ID_LOCATION=/home/ubuntu/intermaclib/im-performance
 
 TEST_DATA_FOLDER_NAME=testdata
