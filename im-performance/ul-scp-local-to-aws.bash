@@ -26,7 +26,7 @@ REMOTE_DATA=$REMOTE_DATA_FILE_LOCATION/$REMOTE_DATA_FILE
 DATE=`date +%Y-%m-%d:%H:%M:%S`
 LOG_FILE_NAME=$DATE\_scp.log
 
-GREP_SCP='Bytes per second\|Bytes encrypted sent\|Bytes raw sent'
+GREP_SCP='Bytes per second sent\|Bytes encrypted sent\|Bytes raw sent'
 
 CIPHER_SUITES=("aes128-ctr" "hmac-md5" "aes128-ctr" "hmac-md5-etm@openssh.com" "aes128-ctr" "umac-64-etm@openssh.com" "aes128-ctr" 
 	"hmac-sha1" "3des-cbc" "hmac-md5" "aes256-ctr" "hmac-sha2-512" "aes128-cbc" "hmac-sha1" "aes128-ctr" "hmac-ripemd160")
