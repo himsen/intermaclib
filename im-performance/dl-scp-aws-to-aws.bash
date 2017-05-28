@@ -12,7 +12,7 @@ PORT=22221
 REMOTE_USER=ubuntu
 SCP=/home/ubuntu/openssh-portable-intermac/scp
 
-ID=aws_us_oregon
+ID=aws_us_west_oregon
 ID_LOCATION=/home/ubuntu/intermaclib/im-performance
 
 TEST_DATA_FOLDER_NAME=testdata
