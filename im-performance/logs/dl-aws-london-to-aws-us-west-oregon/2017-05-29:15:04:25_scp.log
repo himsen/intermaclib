@@ -1,0 +1,92 @@
+aws_london
+aws_us_west_oregon
+DOWNLOAD
+500MB
+aes128-ctr+hmac-md5
+Bytes raw received: 500243564
+Bytes encrypted received: 501339464
+Bytes per second received: 7103323.4
+aes128-ctr+hmac-md5-etm@openssh.com
+Bytes raw received: 500243572
+Bytes encrypted received: 501095980
+Bytes per second received: 9542061.7
+aes128-ctr+umac-64-etm@openssh.com
+Bytes raw received: 500243596
+Bytes encrypted received: 500852520
+Bytes per second received: 6909412.8
+aes128-ctr+hmac-sha1
+Bytes raw received: 500243596
+Bytes encrypted received: 501461424
+Bytes per second received: 8614074.5
+3des-cbc+hmac-md5
+Bytes raw received: 500243500
+Bytes encrypted received: 501095648
+Bytes per second received: 9560305.5
+aes256-ctr+hmac-sha2-512
+Bytes raw received: 500243596
+Bytes encrypted received: 502801048
+Bytes per second received: 7785386.0
+aes128-cbc+hmac-sha1
+Bytes raw received: 500243508
+Bytes encrypted received: 501460896
+Bytes per second received: 8047481.1
+aes128-ctr+hmac-ripemd160
+Bytes raw received: 500243492
+Bytes encrypted received: 501460800
+Bytes per second received: 8935449.6
+chacha20-poly1305@openssh.com
+Bytes raw received: 500243580
+Bytes encrypted received: 501096016
+Bytes per second received: 6791925.8
+aes128-gcm@openssh.com
+Bytes raw received: 500243596
+Bytes encrypted received: 501096088
+Bytes per second received: 9513791.3
+im-aes128-gcm-128
+Bytes raw received: 500243596
+Bytes encrypted received: 571278672
+Bytes per second received: 8761846.7
+im-chacha-poly-128
+Bytes raw received: 500243436
+Bytes encrypted received: 571275792
+Bytes per second received: 7045935.6
+im-aes128-gcm-256
+Bytes raw received: 500243500
+Bytes encrypted received: 539528048
+Bytes per second received: 4295749.7
+im-chacha-poly-256
+Bytes raw received: 500243468
+Bytes encrypted received: 539526960
+Bytes per second received: 3913042.2
+im-aes128-gcm-512
+Bytes raw received: 500243564
+Bytes encrypted received: 531698112
+Bytes per second received: 4290091.6
+im-chacha-poly-512
+Bytes raw received: 500243404
+Bytes encrypted received: 531687552
+Bytes per second received: 9133548.4
+im-aes128-gcm-1024
+Bytes raw received: 500243348
+Bytes encrypted received: 539443840
+Bytes per second received: 7904562.9
+im-chacha-poly-1024
+Bytes raw received: 500243532
+Bytes encrypted received: 539467760
+Bytes per second received: 7665523.2
+im-aes128-gcm-2048
+Bytes raw received: 500243604
+Bytes encrypted received: 566747568
+Bytes per second received: 6942682.4
+im-chacha-poly-2048
+Bytes raw received: 500243532
+Bytes encrypted received: 566728992
+Bytes per second received: 8009640.8
+im-aes128-gcm-4096
+Bytes raw received: 500243540
+Bytes encrypted received: 627117008
+Bytes per second received: 7908138.3
+im-chacha-poly-4096
+Bytes raw received: 500243460
+Bytes encrypted received: 627075888
+Bytes per second received: 8223610.3
