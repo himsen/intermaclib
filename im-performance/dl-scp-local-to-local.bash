@@ -3,7 +3,7 @@
 set -o pipefail
 
 UPLOAD_OR_DOWNLOAD=DOWNLOAD
-BYTES=50MB
+BYTES=1MB
 
 LOCAL=ubuntu-virtual
 REMOTE=ubuntu-virtual

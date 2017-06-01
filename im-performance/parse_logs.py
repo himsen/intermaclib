@@ -38,26 +38,44 @@ if __name__ == '__main__':
 	
 	#xlabels, raw, encrypted, speed = parse_logs("logs/laptop-rhul-to-aws-london")
 	#xlabels, raw, encrypted, speed = parse_logs("logs/aws-london-to-aws-us-west-oregon")
-	#xlabels, raw, encrypted, speed = parse_logs("logs/dl-aws-london-to-aws-us-west-oregon")
-	xlabels, raw, encrypted, speed = parse_logs("logs/ul-aws-london-to-aws-us-west-oregon")	
+	xlabels, raw, encrypted, speed = parse_logs("logs/dl-aws-london-to-aws-us-west-oregon")
+	#xlabels, raw, encrypted, speed = parse_logs("logs/ul-aws-london-to-aws-us-west-oregon")	
+
+	lmb = []
+	MB = 0.000001
 
 	rawmedian = []
-	for i, l in enumerate(raw):
-		rawmedian.append(np.median(map(int,l)))
+	rawvariance = [] 
+	for l in raw:
+		lmb = [ x * MB for x in map(int,l)]
+		rawmedian.append(np.median(lmb))
+		rawvariance.append(np.var(lmb))
 
 	encryptedmedian = []
+	encryptedvariance = []
 	for i, l in enumerate(encrypted):
-		encryptedmedian.append(np.median(map(int,l)))
+		lmb = [ x * MB for x in map(int,l)]
+		encryptedmedian.append(np.median(lmb))
+		encryptedvariance.append(np.var(lmb))
 
 	speedmedian = []
+	speedvariance = []
 	for i, l in enumerate(speed):
-		speedmedian.append(np.median(map(float,l)))
+		lmb = [ x * MB for x in map(float,l)]
+		speedmedian.append(np.median(lmb))
+		speedvariance.append(np.var(lmb))
 
-	MB = 0.000001
-	rawmedian = [ x * MB for x in rawmedian]
+	print rawvariance
+	print encryptedvariance
+	print speedvariance
+
+
+	#rawmedian = [ x * MB for x in rawmedian]
+	#rawvariance = [ x * MB for x in rawvariance]	
 	encryptedmedian = [ x * MB for x in encryptedmedian]
+	#encryptedvariance = [ x * MB for x in encryptedvariance]
 	speedmedian = [ x * MB for x in speedmedian]
-
+	#speedvariance = [ x * MB for x in speedvariance]
 
 	x = np.arange(NUMBER_OF_CIPHERS * 2, step=2)
 	width = 1.2
@@ -65,13 +83,16 @@ if __name__ == '__main__':
 	fig, (ax1, ax2, ax3) = plt.subplots(ncols=3)
 
 	rec1 = ax1.bar(x + 1, rawmedian, width, color='r')
+	ax1.errorbar(x +1, rawmedian, yerr=rawvariance, linestyle='None')
 	ax1.set_title("Total raw bytes")
 	ax1.set_ylabel("MB")
 
 	rec2 = ax2.bar(x + 1, encryptedmedian, width, color='r')
+	ax2.errorbar(x +1, encryptedmedian, encryptedvariance, linestyle='None')
 	ax2.set_title("Total encrypted bytes")
 
 	rec3 = ax3.bar(x + 1, speedmedian, width, color='r')
+	ax3.errorbar(x +1, speedmedian, speedvariance, linestyle='None')
 	ax3.set_title("Throughput (500mb file)")
 	#plt.xticks(x + (width / 2), xlabels, rotation=90, fontsize=10) # (position of x-labels, x-labels)
 
