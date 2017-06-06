@@ -35,6 +35,9 @@ def parse_logs(dname):
 	return xlabels, raw, encrypted, speed
 
 if __name__ == '__main__':
+
+	# More samples
+	# Look at minimum
 	
 	#xlabels, raw, encrypted, speed = parse_logs("logs/laptop-rhul-to-aws-london")
 	#xlabels, raw, encrypted, speed = parse_logs("logs/aws-london-to-aws-us-west-oregon")
