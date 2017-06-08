@@ -1,0 +1,114 @@
+aws-london
+aws-us-west-oregon
+UPLOAD
+100MB
+aes128-ctr+hmac-md5
+Bytes raw sent: 100048281
+Bytes encrypted sent: 101398248
+Time sent: 12.4
+Bytes non channel sent: 1611
+aes128-ctr+hmac-md5-etm@openssh.com
+Bytes raw sent: 100048281
+Bytes encrypted sent: 101256452
+Time sent: 12.4
+Bytes non channel sent: 1643
+aes128-ctr+umac-64-etm@openssh.com
+Bytes raw sent: 100048289
+Bytes encrypted sent: 101109880
+Time sent: 12.4
+Bytes non channel sent: 1641
+aes128-ctr+hmac-sha1
+Bytes raw sent: 100048281
+Bytes encrypted sent: 101444084
+Time sent: 17.3
+Bytes non channel sent: 1613
+3des-cbc+hmac-md5
+Bytes raw sent: 100048169
+Bytes encrypted sent: 101471784
+Time sent: 12.4
+Bytes non channel sent: 1607
+aes256-ctr+hmac-sha2-512
+Bytes raw sent: 100048281
+Bytes encrypted sent: 101377568
+Time sent: 16.4
+Bytes non channel sent: 1621
+aes128-cbc+hmac-sha1
+Bytes raw sent: 100048281
+Bytes encrypted sent: 101217240
+Time sent: 16.4
+Bytes non channel sent: 1613
+aes128-ctr+hmac-ripemd160
+Bytes raw sent: 100048273
+Bytes encrypted sent: 101350704
+Time sent: 12.3
+Bytes non channel sent: 1623
+chacha20-poly1305@openssh.com
+Bytes raw sent: 100048249
+Bytes encrypted sent: 101182504
+Time sent: 13.3
+Bytes non channel sent: 2059
+aes128-gcm@openssh.com
+Bytes raw sent: 100048249
+Bytes encrypted sent: 101094684
+Time sent: 23.7
+Bytes non channel sent: 2045
+im-aes128-gcm-128
+Bytes raw sent: 100048233
+Bytes encrypted sent: 115429728
+Time sent: 26.8
+Bytes non channel sent: 2035
+im-chacha-poly-128
+Bytes raw sent: 100048121
+Bytes encrypted sent: 115577288
+Time sent: 28.8
+Bytes non channel sent: 2037
+im-aes128-gcm-256
+Bytes raw sent: 100048241
+Bytes encrypted sent: 109193096
+Time sent: 23.0
+Bytes non channel sent: 2035
+im-chacha-poly-256
+Bytes raw sent: 100048145
+Bytes encrypted sent: 108571152
+Time sent: 24.6
+Bytes non channel sent: 2037
+im-aes128-gcm-512
+Bytes raw sent: 100048137
+Bytes encrypted sent: 107346904
+Time sent: 26.0
+Bytes non channel sent: 2035
+im-chacha-poly-512
+Bytes raw sent: 100048145
+Bytes encrypted sent: 106982856
+Time sent: 26.3
+Bytes non channel sent: 2037
+im-aes128-gcm-1024
+Bytes raw sent: 100048169
+Bytes encrypted sent: 108924136
+Time sent: 26.4
+Bytes non channel sent: 2037
+im-chacha-poly-1024
+Bytes raw sent: 100048169
+Bytes encrypted sent: 109707480
+Time sent: 26.1
+Bytes non channel sent: 2039
+im-aes128-gcm-2048
+Bytes raw sent: 100048281
+Bytes encrypted sent: 114227952
+Time sent: 29.4
+Bytes non channel sent: 2037
+im-chacha-poly-2048
+Bytes raw sent: 100048193
+Bytes encrypted sent: 115301232
+Time sent: 27.3
+Bytes non channel sent: 2039
+im-aes128-gcm-4096
+Bytes raw sent: 100048305
+Bytes encrypted sent: 128298512
+Time sent: 32.0
+Bytes non channel sent: 2037
+im-chacha-poly-4096
+Bytes raw sent: 100048097
+Bytes encrypted sent: 130765712
+Time sent: 30.7
+Bytes non channel sent: 2039
