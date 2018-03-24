@@ -1,20 +1,21 @@
 TODO
 
- - Write decryption function description
  - Implement clean up functions (function pointers in general cipher struct)
  - Write nice (easy to read and extend) tests
- - Add guards for calling functions too many times (data limits)
+ - Add guards for calling functions too many times (data limits) **
  - Make more portable with size_t instead of u_int (or understand what is the difference)
  - Licencse?
  - Add support for authenticated additional data
- - Implement re-key
- - Add fake parse after recieving final chunk?
- - Does GIT use SSH?
+ - Implement re-key **
+ - Add fake parse and encrypt after recieving final chunk **
+ - Re-write im_initialise (because it is damm ugly...)
 
- - (DONE) Implement MAKE file
- - (DONE) Implement AES-GCM support (use NI) or make comparable with OpenSSH?
- - (DONE) Integrate into OpenSSH
- - (DONE (somewhat)) Refactor to constant time online encryption/decryption
+ DONE:
+ - Write decryption function description
+ - Implement MAKE file
+ - Implement AES-GCM support (use NI) or make comparable with OpenSSH?
+ - Integrate into OpenSSH
+ - (somewhat)) Refactor to constant time online encryption/decryption
 
  NOTES
 

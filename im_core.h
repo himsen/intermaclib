@@ -10,7 +10,7 @@
 /* Error codes */
 
 #define IM_ERR	-1
-#define IM_REKEY -2 /* TODO implement this */
+#define IM_REKEY -2 /* TODO: implement this */
 
 /* OK */
 
@@ -72,9 +72,7 @@ struct intermac_ctx {
 int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*, int);
 int im_encrypt(struct intermac_ctx*, u_char**, u_int*, const u_char*, u_int);
 int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char**, u_int*, u_int*);
-void im_cleanup(struct intermac_ctx*);
-
-/* Internal functions */
+int im_cleanup(struct intermac_ctx*);
 
 int im_get_length(struct intermac_ctx*, u_int, u_int*);
 int im_padding_length_encrypt(u_int, u_int, u_int, u_int*);

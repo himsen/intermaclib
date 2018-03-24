@@ -11,10 +11,9 @@
 /* im_aes_gcm.c includes */
 #include <openssl/evp.h>
 
-
 /* Cipher states */
 struct im_cipher_st_ctx {
- 	/* crypt_type = 1 (encryption), crypt_type = 0 (decryption)*/
+ 	/* crypt_type = 1 (encryption), crypt_type = 0 (decryption) */
 	int crypt_type;
 
 	/* im_chacha_poly.c context */

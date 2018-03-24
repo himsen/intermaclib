@@ -50,7 +50,7 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce, u_char 
 		/* Set tag */
 		if (EVP_CIPHER_CTX_ctrl(im_cs_ctx->evp, EVP_CTRL_GCM_GET_TAG, 16, dst + src_length) == 0)
 			return -1;
-	}
+	}	
 
 	return 0;
 }

@@ -7,71 +7,76 @@
 
 #define im_div_roundup(x,y) ( 1 + ( ((x) - 1) / (y) ) ) /* Only works for x,y > 0 */
 
-
 /* 
- * Computes the number of padding bytes needed to hit a multiple of 
- * the chunk length.
- * Because we want to avoid padding a whole chunk this number might be zero, which
- * must be specifically handled later.
+ * @brief Computes the number of padding bytes needed to hit a multiple of 
+ * the chunk length. Because we want to avoid padding a whole chunk the
+ * number of padding bytes can be zero.
  */
-int im_padding_length_encrypt(u_int length, u_int chunk_length, u_int number_of_chunks, u_int *res) {
+int im_padding_length_encrypt(u_int length, u_int chunk_length, 
+	u_int number_of_chunks, u_int *res) {
 
-	u_int data_delimiters;
-	u_int padding_length;
+	u_int data_encoded_len = 0;
+	u_int padding_length = 0;
 
-	data_delimiters = length + number_of_chunks; /* data + chunk delimiters */
-	padding_length = chunk_length - (data_delimiters % chunk_length); /* How many bytes away chunk boundary */
+	/* Length of encoded data */
+	data_encoded_len = length + number_of_chunks;
 
-	*res = padding_length % chunk_length; /* If we are on a boundary set padding to 0 */
+	/* Compute how many bytes away from chunk boundary */
+	padding_length = chunk_length - (data_encoded_len % chunk_length);
+
+	/* If we are on a boundary number of padding bytes is 0 */
+	*res = padding_length % chunk_length; 
 
 	return IM_OK;
 }
 
 /*
- * (constant time) Compute length of padding. 
- * Compares consecutive bytes over the whole chunk to avoid leakage.  
+ * @brief Computes the length of padding, in a decrypted chunk, in constant time.  
  */
-int im_padding_length_decrypt(u_char *decrypted_chunk, u_int chunk_length, u_int *padding_length) {
+int im_padding_length_decrypt(u_char *decrypted_chunk, u_int chunk_length, 
+	u_int *padding_length) {
 
-	u_int i;
+	u_int i = 0;
 	u_int padding_counter = 1;
-
 	int flag = 0;
+	u_char padding_byte;
 
 	/* If this is the case, there is something wrong! */
 	if (chunk_length < 3) {
 		return IM_ERR;
 	}
 
+	/* Retrieve padding byte */
+	padding_byte = decrypted_chunk[chunk_length - 1];
+
 	/* 
-	 * decrypted_chunk[(chunk_length - 1) - *padding_length] = i'th char 
-	 * decrypted_chunk[((chunk_length - 1) - 1) - *padding_length] = (i-1)'th char
-	 * decrypted_chunk[chunk_length -1] is the chunk delimiter
+	 * Run through decrypted chunk one byte at a time. Flag when a byte different
+	 * from the padding byte is encountered.  
 	 */
-	for (i = 0; i < chunk_length; i++) {
-		flag |= memcmp(&decrypted_chunk[(chunk_length - 1) - padding_counter], &decrypted_chunk[((chunk_length - 1) - 1) - padding_counter], sizeof(u_char));
+	for (i = 1; i < chunk_length; i++) {
+		//flag |= memcmp(&decrypted_chunk[(chunk_length - 1) - padding_counter], 
+		//	&decrypted_chunk[((chunk_length - 1) - 1) - padding_counter], sizeof(u_char));
+
+		flag |= memcmp(&padding_byte, &decrypted_chunk[(chunk_length - 1) - i],
+						sizeof(u_char));
 
 		if (!flag) {
 			padding_counter = padding_counter + 1;
 		}
 	}
 
-	/* If this is the case, there is something wrong! */
-	if (padding_counter == chunk_length - 1) {
-		return IM_ERR;
-	}
-
 	*padding_length = padding_counter;
 
-	return 0;
+	return IM_OK;
 }
 
 
 /*
- * Adds aternating padding to a chunk
- * Padding byte depends on the last byte in 'src'
+ * Adds aternating padding to a chunk.
+ * Padding byte depends on the last byte in 'src'.
  */
-int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_length, u_int chunk_length) {
+int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_length, 
+	u_int chunk_length) {
 
 	if (padding_length == 0) {
 		return 0;
@@ -92,7 +97,7 @@ int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_lengt
 		}
 	}
 
-	return 0;
+	return IM_OK;
 }
 
 /*
@@ -101,7 +106,7 @@ int im_add_alternating_padding(u_char *src, u_char lastbyte, u_int padding_lengt
  */
 int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
 
-	int noc; /* Number of chunks */
+	int noc = 0; /* Number of chunks */
 
 	/* div_roundup computation does not work for these specific values */
 	if (length == 0 || im_ctx->chunk_length == 1) {
@@ -121,13 +126,13 @@ int im_get_length(struct intermac_ctx *im_ctx, u_int length, u_int *res) {
 	/* Save number of chunks */
 	im_ctx->number_of_chunks = noc; 
 
-	return 0;
+	return IM_OK;
 }
 
 /*
  * Encodes the nonce from 'chunk_counter' and 'message_counter'.
  * 'chunk_counter' treated as 32 bit and 'message_counter' is treated as 64 bit.
- * Nonce is encoded as
+ * Nonce is encoded as:
  * nonce = chunk_counter || message_counter in little endian form. 
  */
 void im_encode_nonce(u_char *nonce, u_int chunk_counter, u_int message_counter) {
@@ -141,9 +146,12 @@ void im_encode_nonce(u_char *nonce, u_int chunk_counter, u_int message_counter) 
  * Retrieves the chosen cipher.
  * Contexts must be freed using im_cleanup().
  */
-int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chunk_length, const char *cipher, int crypt_type) {
+int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, 
+	u_int chunk_length, const char *cipher, int crypt_type) {
 
-	int r; /* Error */
+	/* TODO: Re-write this ugly looking initialiser function */
+
+	int r = 0; /* Error */
 
 	u_char nonce[IM_NONCE_LENGTH];
 	struct im_cipher_st_ctx _im_cs_ctx;
@@ -169,7 +177,8 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	im_encode_nonce(nonce, 0, 0);
 
 	/* Initialise cipher with key, nonce and encrypt/decrypt mode */
-	if ((r = _cipher->init(&_im_cs_ctx, enckey, _cipher->key_len, nonce, crypt_type)) != 0) {
+	if ((r = _cipher->init(&_im_cs_ctx, enckey, _cipher->key_len, nonce, 
+		crypt_type)) != 0) {
 		return IM_ERR;
 	}
 
@@ -192,7 +201,7 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
 	_im_ctx->im_c_ctx = _im_c_ctx;
 	*(im_ctx) = _im_ctx;
 
-	return 0;
+	return IM_OK;
 }
 
 /*
@@ -200,14 +209,15 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *enckey, u_int chun
  * Handles memory allocation for 'dst'
  * Caller must free 'dst'
  */
-int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, const u_char *src, u_int src_length) {
+int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, 
+	const u_char *src, u_int src_length) {
 
-	u_int padding_length;
-	u_int padding_offset;
-	u_int k; /* Counter for processing the (k+1)th chunk of the unencoded message */
-	u_int p; /* Offset to current plaintext */
-	u_int pp; /* Offset to current destination for ciphertext */
-	u_int number_of_chunks;
+	u_int padding_length = 0;
+	u_int padding_offset = 0;
+	u_int k = 0; /* Counter for processing the (k+1)th chunk of the unencoded message */
+	u_int p = 0; /* Offset to current plaintext */
+	u_int pp = 0; /* Offset to current destination for ciphertext */
+	u_int number_of_chunks = 0;
 	u_int chunk_length = im_ctx->chunk_length;
 	u_int ciphertext_length = im_ctx->ciphertext_length;
 	u_int mactag_length = im_ctx->mactag_length;
@@ -235,7 +245,8 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 	}
 
 	/* Compute size (in bytes) of padding */ 
-	if (im_padding_length_encrypt(src_length, chunk_length, number_of_chunks, &padding_length) != IM_OK) {
+	if (im_padding_length_encrypt(src_length, chunk_length, number_of_chunks, 
+		&padding_length) != IM_OK) {
 		return IM_ERR;
 	}
 
@@ -251,7 +262,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 		p = k * (chunk_length - 1);
 		pp = k * (ciphertext_length + mactag_length);
 
-		// Add byte delimiter
+		/* Add byte delimiter */
 		if ( k < number_of_chunks - 1 ) {
 
 			memcpy(chunkbuf, src + p, chunk_length - 1);
@@ -260,22 +271,26 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 		else {
 
 			/* Add alternating padding */
-			im_add_alternating_padding(chunkbuf + padding_offset, src[src_length - 1], padding_length, chunk_length);
+			im_add_alternating_padding(chunkbuf + padding_offset, 
+				src[src_length - 1], padding_length, chunk_length);
 
 			memcpy(chunkbuf, src + p, chunk_length - 1 - padding_length);
 
 			if (padding_length) {
-				memcpy(chunkbuf + (chunk_length - 1), &chunk_delimiter_final, 1); /* Padding needed */
+				/* Padding needed */
+				memcpy(chunkbuf + (chunk_length - 1), &chunk_delimiter_final, 1);
 			}
 			else {
-				memcpy(chunkbuf + (chunk_length - 1), &chunk_delimiter_final_no_padding, 1); /* Padding not needed */
+				/* Padding not needed */
+				memcpy(chunkbuf + (chunk_length - 1), &chunk_delimiter_final_no_padding, 1);
 			}
 		}
 
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 		
 		/* Encrypts chunk and computes MAC tag using chosen cipher */
-		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, *dst + pp, chunkbuf, chunk_length) != 0) {
+		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, 
+			*dst + pp, chunkbuf, chunk_length) != 0) {
 			return IM_ERR;
 		}
 
@@ -286,79 +301,144 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length, con
 	im_ctx->chunk_counter = 0;
 	im_ctx->number_of_chunks = 0;
 
-	return 0;
+	return IM_OK;
 }
 
-/*
- * To avoid leaking boundary, should do dummy decryptions if the entire ciphertext fragment is not decrypted. 
+/* TODO Make im_decrypt signature easier to understand by removing src_consumed
+ * It should really be an application responsibilityt o input the correct pointer
+ * They would nede to store the src_consumed anyway, so should be able to increment 
+ * the pointer correctly. We are safe because the verification will fail because 
+ * chunk counter will be out-of-sync.
  */
-int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, u_int src_consumed, u_int *this_src_processed, u_char **dst, u_int *size_decrypted_packet, u_int *total_allocated) {
+
+/*
+ * To avoid leaking boundary, should do dummy decryptions if the entire ciphertext fragment is not decrypted.
+ * im_ctx:
+ * src:
+ * src_length:
+ * src_consumed: 
+ * this_src_consumed:
+ * dst:
+ * size_decrypted_packet:
+ * total_allocated: 
+ */
+int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, 
+	u_int src_consumed, u_int *this_src_processed, u_char **dst, 
+	u_int *size_decrypted_packet, u_int *total_allocated) {
 
 	u_char *decryption_buffer = im_ctx->decryption_buffer;
-	u_char chunk_delimiter; /* Current chunk delimiter */
+	u_char chunk_delimiter;/* Current chunk delimiter */
+	u_char chunk_delimiter_not_final = IM_CHUNK_DELIMITER_NOT_FINAL;
 	u_char chunk_delimiter_final = IM_CHUNK_DELIMITER_FINAL;
 	u_char chunk_delimiter_final_no_padding = IM_CHUNK_DELIMITER_FINAL_NO_PADDING;
 
 	u_int chunk_length = im_ctx->chunk_length;
 	u_int ciphertext_length = im_ctx->ciphertext_length;
 	u_int mactag_length = im_ctx->mactag_length;
-	u_int src_processed = im_ctx->src_processed; /* How much data processed from 'src' in previous calls */
+	/* How much data processed from 'src' in previous calls */
+	u_int src_processed = im_ctx->src_processed; 
 	u_int padding_length = 0;
-	u_int chunk_counter;
-	u_int message_counter;
-	u_int decrypt_buffer_offset;
+	u_int chunk_counter = 0;
+	u_int message_counter = 0;
+	u_int decrypt_buffer_offset = 0;
+
+	int chunk_delimiter_final_no_padding_cmp = 0;
+	int chunk_delimiter_final_cmp = 0;
 
 	u_char decrypted_chunk[chunk_length];
 	u_char expected_tag[mactag_length];
 	u_char nonce[IM_NONCE_LENGTH];
 
 	*size_decrypted_packet = 0;
-	*this_src_processed = 0; /* How much data have been processed on 'this' call at any given time */
+	/* How much data have been processed on 'this' call at any given time */
+	*this_src_processed = 0; 
 
 	for (;;) {
 
+		/* Get current decrypt state variables */
 		chunk_counter = im_ctx->chunk_counter;
 		message_counter = im_ctx->message_counter;
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
+		/* Check if the decryption buffer can store another chunk */
 		if (decrypt_buffer_offset + (chunk_length - 1) > IM_DECRYPTION_BUFFER_LENGTH) {
 			return IM_ERR;
 		}
 
-		if (src_length + src_consumed - src_processed - *this_src_processed < ciphertext_length + mactag_length) {
-			return IM_OK; /* Wait for more bytes */
+		/* Check if there are enough bytes to decrypt a chunk */
+		if (src_length + src_consumed - src_processed - *this_src_processed < 
+			ciphertext_length + mactag_length) {
+			return IM_OK; /* Return IM_OK: wait for more bytes */
 		}
 
-		memcpy(expected_tag, src + (src_processed + *this_src_processed + ciphertext_length - src_consumed), mactag_length);
+		/* Extract MAC tag */
+		memcpy(expected_tag, src + (src_processed + *this_src_processed + 
+			ciphertext_length - src_consumed), mactag_length);
 
+		/* Encode nonce */
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 
-		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, nonce, decrypted_chunk, src + (src_processed + *this_src_processed - src_consumed), chunk_length) != 0) {
+		/* 
+		 * Apply internal cipher on chunk.
+		 * Returning from do_cipher implies that the chunk MAC has been verified
+		 * and the chunk has been decrypted
+		 */
+		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, 
+			nonce, decrypted_chunk, src + (src_processed + *this_src_processed - src_consumed), 
+			chunk_length) != 0) {
 			return IM_ERR;
 		}
 
-		memcpy(decryption_buffer + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
+		/* Extract chunk delimiter */
 		chunk_delimiter = decrypted_chunk[chunk_length - 1];
 
+		chunk_delimiter_final_no_padding_cmp = memcmp(&chunk_delimiter, 
+			&chunk_delimiter_final_no_padding, sizeof(u_char));
+		chunk_delimiter_final_cmp = memcmp(&chunk_delimiter,
+			&chunk_delimiter_final, sizeof(u_char));
+
+		/* Check whether we understand the final chunk delimiter */
+		if (memcmp(&chunk_delimiter, &chunk_delimiter_not_final, sizeof(u_char)) != 0 &&
+			chunk_delimiter_final_no_padding_cmp !=0 &&
+			chunk_delimiter_final_cmp != 0) {
+			/* Something is wrong */
+			return IM_ERR;
+		}
+
+		/*
+		 * Compute padding length even though this might not be the final chunk in a 
+		 * message or there might not be any padding. This serves as a precaution to not 
+		 * leaking timing information.
+		 */
+		if (im_padding_length_decrypt(decrypted_chunk, chunk_length, &padding_length) == IM_ERR) {
+			return IM_ERR;
+		}
+
+		/* Copy decrypted chunk to decryption_buffer */
+		memcpy(decryption_buffer + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
+
+		/* Update decryption state variables to reflect we have decrypted another chunk */
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
 		im_ctx->src_processed = im_ctx->src_processed + (ciphertext_length + mactag_length);
 		*this_src_processed = *this_src_processed + (ciphertext_length + mactag_length);
 
-		/* Check chunk delimiter; if chunk delimiter for final chunk, remove padding (if any) */
-		if (!memcmp(&chunk_delimiter, &chunk_delimiter_final, 1)) {
-			/* Final chunk processed but we have to remove some padding */
-			if (im_padding_length_decrypt(decrypted_chunk, chunk_length, &padding_length) != 0) {
-				return IM_ERR;
-			}
+		/* Check if this chunk was the final chunk */
+		if (chunk_delimiter_final_no_padding_cmp == 0) {
+			/* Final chunk decrypted and there is actually no padding */
+			padding_length = 0;
 			break;
 		}
-		else if (!memcmp(&chunk_delimiter, &chunk_delimiter_final_no_padding, 1)) {
-			/* Final chunk processed but there is no padding */
+		else if(chunk_delimiter_final_cmp == 0) {
+			/* Padding and final chunk decrypted */
 			break;
 		}
 	}
 
+	/* 
+	 * Message decrypted.
+	 * Point to message, communicate length, update counters and reset for next message.
+	 */
 	*dst = decryption_buffer;
 	*size_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
 	*total_allocated = im_ctx->decrypt_buffer_allocated;
@@ -367,13 +447,13 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	im_ctx->chunk_counter = 0;
 	im_ctx->src_processed = 0;
 
-	return 0;
+	return IM_OK;
 }
 
 /* 
  * Clean up.
  */
-void im_cleanup(struct intermac_ctx *im_ctx) {
+int im_cleanup(struct intermac_ctx *im_ctx) {
 
 	if (im_ctx == NULL)
 		return 0;
@@ -404,7 +484,7 @@ void im_cleanup(struct intermac_ctx *im_ctx) {
 	free(im_ctx);
 	im_ctx = NULL;
 
-	return 0;
+	return IM_OK;
 }
 
 /* TODO: remove */

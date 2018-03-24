@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 
-/* Available cipher implementations */
+/* Available internal AE ciphers implementations */
 #include "im_aes_gcm.h"
 #include "im_chacha_poly.h"
 
