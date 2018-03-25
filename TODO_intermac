@@ -12,6 +12,7 @@ TODO
  - change padding such that it does not rely on the printable char '0' but actually the byte 0
  - Make it consistent where the chunk_length parameter is in function definitions
  - Add fPIC?
+ - Enable compile optimisation
 
  DONE:
  - Implement clean up functions (function pointers in general cipher struct)
