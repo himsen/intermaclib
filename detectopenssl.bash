@@ -18,4 +18,3 @@ echo "Second (presumably with NI support):"
 openssl speed -evp aes-128-cb
 echo
 echo "Second speed test should be faster than the first speed test"
-
