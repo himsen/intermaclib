@@ -391,27 +391,47 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	return IM_OK;
 }
 
-/* TODO Make im_decrypt signature easier to understand by removing src_consumed
+/* TODO Make im_decrypt() signature easier to understand by removing src_consumed
  * It should really be an application responsibilityt o input the correct pointer
  * They would nede to store the src_consumed anyway, so should be able to increment 
  * the pointer correctly. We are safe because the verification will fail because 
  * chunk counter will be out-of-sync.
+ * In addition, think of ways to make this function easier to use, because atm 
+ * it is highly complex which is not the intention of this library.
  */
 
 /*
- * To avoid leaking boundary, should do dummy decryptions if the entire ciphertext fragment is not decrypted.
- * im_ctx:
- * src:
- * src_length:
- * src_consumed: 
- * this_src_consumed:
- * dst:
- * size_decrypted_packet:
- * total_allocated: 
+ * @brief InterMAC decrypts a ciphertext fragment. The function will
+ * return when ONE ciphertext has been fully decrypted and will not 
+ * attempt to decrypt further ciphertets (or ciphertext parts) that 
+ * might be contained in a ciphertext fragment.
+ *
+ * The caller must NOT free the return pointer _*dst_. We are aware 
+ * that this functions borders to insanity...
+ *
+ * @param im_ctc The InterMAC context
+ * @param src The ciphertext fragment to be InterMAC decrypted
+ * @param src_length The length of the ciphertext fragment to be InterMAC decrypted
+ * @param this_src_consumed The address to which the amount of bytes decrypted
+ * of the ciphertext fragmentis written
+ * @param dst The address to which the a decrypted ciphertext is written, note
+ * that this will only happen when the full ciphertext has been decrypted
+ * @param size_decrypted_ciphertext The address to which the size of the decrypted 
+ * ciphertext is written
+ * @param total_allocated The amout of memory (counted in bytes) allocated at the 
+ * address dst
+ * @return IM_OK && *dst == NULL if waiting for more data, IM_OK && *dst != NULL if
+ * a ciphertext has been fully decrypted, IM_ERR on failure
  */
 int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length, 
 	u_int src_consumed, u_int *this_src_processed, u_char **dst, 
-	u_int *size_decrypted_packet, u_int *total_allocated) {
+	u_int *size_decrypted_ciphertext, u_int *total_allocated) {
+
+	/* TODO: This function could leak timing information becasue execution time atm
+	 * depends on the length of the message being decrypted and not the length of 
+	 * the ciphertext fragment. To counter this, a dummy decryption must be implemented
+	 * the performs a fake decryption of the remaining ciphertext fragment (as long as
+	 * there is enough data for a chunk ciphertext + mac tag) */
 
 	u_char *decryption_buffer = im_ctx->decryption_buffer;
 	u_char chunk_delimiter;/* Current chunk delimiter */
@@ -422,7 +442,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_int chunk_length = im_ctx->chunk_length;
 	u_int ciphertext_length = im_ctx->ciphertext_length;
 	u_int mactag_length = im_ctx->mactag_length;
-	/* How much data processed from 'src' in previous calls */
+	/* Saves how many ciphertect bytes hat has been processed in previous calls */
 	u_int src_processed = im_ctx->src_processed; 
 	u_int padding_length = 0;
 	u_int chunk_counter = 0;
@@ -436,39 +456,43 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_char expected_tag[mactag_length];
 	u_char nonce[IM_NONCE_LENGTH];
 
-	*size_decrypted_packet = 0;
-	/* How much data have been processed on 'this' call at any given time */
+	*size_decrypted_ciphertext = 0;
+	/* Saves how many bytes that has been processed in *this* call at any given time */
 	*this_src_processed = 0; 
 
 	for (;;) {
 
-		/* Get current decrypt state variables */
+		/*
+		 * Because this loop runs until a final chunk of a message has been decrypted
+		 * or until we don't have an entire chunk, we must make sure to update
+		 * the state
+		 */
 		chunk_counter = im_ctx->chunk_counter;
 		message_counter = im_ctx->message_counter;
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
-		/* Check if the decryption buffer can store another chunk */
+		/* Checks if the decryption buffer can store another chunk */
 		if (decrypt_buffer_offset + (chunk_length - 1) > IM_DECRYPTION_BUFFER_LENGTH) {
 			return IM_ERR;
 		}
 
-		/* Check if there are enough bytes to decrypt a chunk */
+		/* Checks if there are enough bytes to decrypt a chunk */
 		if (src_length + src_consumed - src_processed - *this_src_processed < 
 			ciphertext_length + mactag_length) {
 			return IM_OK; /* Return IM_OK: wait for more bytes */
 		}
 
-		/* Extract MAC tag */
+		/* Extracts the MAC tag from chunk cipertext */
 		memcpy(expected_tag, src + (src_processed + *this_src_processed + 
 			ciphertext_length - src_consumed), mactag_length);
 
-		/* Encode nonce */
 		im_encode_nonce(nonce, chunk_counter, message_counter);
 
 		/* 
 		 * Apply internal cipher on chunk.
 		 * Returning from do_cipher implies that the chunk MAC has been verified
-		 * and the chunk has been decrypted
+		 * and that the chunk has been decrypted.
+		 * The decrypted chunk is written to the address decrypted_chunk.
 		 */
 		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx, 
 			nonce, decrypted_chunk, src + (src_processed + *this_src_processed - src_consumed), 
@@ -476,7 +500,6 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			return IM_ERR;
 		}
 
-		/* Extract chunk delimiter */
 		chunk_delimiter = decrypted_chunk[chunk_length - 1];
 
 		chunk_delimiter_final_no_padding_cmp = memcmp(&chunk_delimiter, 
@@ -484,16 +507,15 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		chunk_delimiter_final_cmp = memcmp(&chunk_delimiter,
 			&chunk_delimiter_final, sizeof(u_char));
 
-		/* Check whether we understand the final chunk delimiter */
+		/* Checks whether we understand the final chunk delimiter */
 		if (memcmp(&chunk_delimiter, &chunk_delimiter_not_final, sizeof(u_char)) != 0 &&
 			chunk_delimiter_final_no_padding_cmp !=0 &&
 			chunk_delimiter_final_cmp != 0) {
-			/* Something is wrong */
 			return IM_ERR;
 		}
 
 		/*
-		 * Compute padding length even though this might not be the final chunk in a 
+		 * Computes the padding length even though this might not be the final chunk in a 
 		 * message or there might not be any padding. This serves as a precaution to not 
 		 * leaking timing information.
 		 */
@@ -501,33 +523,34 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			return IM_ERR;
 		}
 
-		/* Copy decrypted chunk to decryption_buffer */
+		/* Copies the decrypted chunk to the decryption_buffer */
 		memcpy(decryption_buffer + decrypt_buffer_offset, decrypted_chunk, chunk_length - 1);
 
-		/* Update decryption state variables to reflect we have decrypted another chunk */
+		/* Updates decryption state variables to reflect we have decrypted another chunk */
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + (chunk_length - 1);
 		im_ctx->chunk_counter = chunk_counter + 1;
 		im_ctx->src_processed = im_ctx->src_processed + (ciphertext_length + mactag_length);
 		*this_src_processed = *this_src_processed + (ciphertext_length + mactag_length);
 
-		/* Check if this chunk was the final chunk */
+		/* Checks if this chunk was the final chunk */
 		if (chunk_delimiter_final_no_padding_cmp == 0) {
-			/* Final chunk decrypted and there is actually no padding */
+			/* Final chunk decrypted but there is no padding to be removed */
 			padding_length = 0;
 			break;
 		}
 		else if(chunk_delimiter_final_cmp == 0) {
-			/* Padding and final chunk decrypted */
+			/* Final chunk decryoted but there is padding to be removed */
 			break;
 		}
 	}
 
 	/* 
 	 * Message decrypted.
-	 * Point to message, communicate length, update counters and reset for next message.
+	 * Set result pointer to point to the message decrypted, 
+	 * communicate its length, update counters and reset for next message.
 	 */
 	*dst = decryption_buffer;
-	*size_decrypted_packet = im_ctx->decrypt_buffer_offset - padding_length;
+	*size_decrypted_ciphertext = im_ctx->decrypt_buffer_offset - padding_length;
 	*total_allocated = im_ctx->decrypt_buffer_allocated;
 	im_ctx->message_counter = message_counter + 1;
 	im_ctx->decrypt_buffer_offset = 0;
