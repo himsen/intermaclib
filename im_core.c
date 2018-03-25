@@ -1,3 +1,13 @@
+/*
+ * @file im_core.c
+ * @brief Implements core InterMAC API: 
+ * im_initialise()
+ * im_encrypt()
+ * im_decrypt()
+ * im_cleanup()
+ * 
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
 
 #include <string.h>
 #include <stdio.h>
@@ -395,7 +405,8 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
  * It should really be an application responsibilityt o input the correct pointer
  * They would nede to store the src_consumed anyway, so should be able to increment 
  * the pointer correctly. We are safe because the verification will fail because 
- * chunk counter will be out-of-sync.
+ * chunk counter will be out-of-sync. In this line of thought we should also get 
+ * red of src_processed which adds even more complexity.
  * In addition, think of ways to make this function easier to use, because atm 
  * it is highly complex which is not the intention of this library.
  */

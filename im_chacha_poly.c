@@ -14,7 +14,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* TODO: Which license? */
+/*
+ * @file im_chacha_poly.c
+ *
+ * @author Damien Miller <djm@mindrot.org>
+ */
 
 #include <stddef.h>
 #include <string.h>

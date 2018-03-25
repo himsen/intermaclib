@@ -1,3 +1,9 @@
+/*
+ * @file im_chacha_poly.h
+ *
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
+
 #ifndef IM_CHACHA_POLY_H
 #define IM_CHACHA_POLY_H
 

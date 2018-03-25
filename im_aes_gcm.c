@@ -1,6 +1,8 @@
 /* 
- * Simple AES-GCM 128 bit cipher, which sets a new nonce for every call
- * Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ * @file im_aes_gcm.c
+ * @brief Simple AES-GCM 128 bit cipher, which sets a new nonce for every call
+ *
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
  */
 
 #include "im_aes_gcm.h"

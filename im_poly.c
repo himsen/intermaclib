@@ -3,7 +3,11 @@
  * poly1305-donna-unrolled.c from https://github.com/floodyberry/poly1305-donna
  */
 
-/* TODO: which license? */
+/*
+ * @file im_poly.c
+ *
+ * @author Andrew Moon
+ */
 
 #include <sys/types.h>
 #include <stdint.h>

@@ -1,3 +1,9 @@
+/*
+ * @file im_aes_gcm.h
+ *
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
+
 #ifndef IM_AES_GCM_H
 #define IM_AES_GCM_H
 

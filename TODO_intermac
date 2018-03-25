@@ -1,11 +1,9 @@
 TODO
-
- - Implement clean up functions (function pointers in general cipher struct)
  - Write nice (easy to read and extend) tests
  - Add guards for calling functions too many times (data limits) **
- - Make more portable with size_t instead of u_int (or understand what is the difference)
- - Licencse? 
- - Add support for authenticated additional data
+ - Make more portable with size_t instead of u_int (and fully understand what is the difference)
+ - Licencse? and how to say that it is slightly modifed (function re-naming etc.)
+ - Add support for authenticated additional data (hmm why do I want to do that?)
  - Implement re-key **
  - Add fake parse and encrypt after recieving final chunk **
  - Re-write im_initialise (because it is damm ugly...)
@@ -13,8 +11,10 @@ TODO
  - spring clean of intermac repo and openssh-intermac repo
  - change padding such that it does not rely on the printable char '0' but actually the byte 0
  - Make it consistent where the chunk_length parameter is in function definitions
+ - Add fPIC?
 
  DONE:
+ - Implement clean up functions (function pointers in general cipher struct)
  - Write decryption function description
  - Implement MAKE file
  - Implement AES-GCM support (use NI) or make comparable with OpenSSH?
@@ -22,16 +22,13 @@ TODO
  - (somewhat)) Refactor to constant time online encryption/decryption
 
  NOTES
-
  - Per packet timing leak is bad
  - Per chunk timing leak is ok 
  - Had to disable block length check. How to get around this???
  - ChaCha-Poly construction follows https://tools.ietf.org/html/
  - packages are normally small during interactive session so more efficient to remove lenth field and padding length field
 
-
  PAPER
-
  - Document design decisions
  - Discuss why we can't do exponential forecating 
  - Discuss why are we trying to acheive boundary hidinng

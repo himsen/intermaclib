@@ -17,6 +17,12 @@
 
 /* OPENBSD ORIGINAL: lib/libc/string/timingsafe_bcmp.c */
 
+/*
+ * @file timingsafe_bcmp.c
+ *
+ * @author Damien Miller <djm@mindrot.org>
+ */
+
 #ifndef IM_TIMINGSAFE_BCMP
 #define IM_TIMINGSAFE_BCMP
 

@@ -1,13 +1,19 @@
+/*
+ * @file im_cipher.h
+ *
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
+
 #ifndef IM_CIPHER_H
 #define IM_CIPHER_H
 
 #include <sys/types.h>
 
-/* Available internal AE ciphers implementations */
+/* Cipher implementations */
 #include "im_aes_gcm.h"
 #include "im_chacha_poly.h"
 
-/* Intermac cipher definition */
+/* InteMAC internal cipher definition */
 struct im_cipher {
 	char *name;
 	u_int key_len;
@@ -17,6 +23,7 @@ struct im_cipher {
 	int (*do_cipher)(struct im_cipher_st_ctx *ctx, u_char *nonce, u_char *dst, const u_char *src, u_int src_length);
 	void (*cleanup)(struct im_cipher_st_ctx *ctx);
 	u_int flags;
+/* Available internal InterMAC ciphers */
 #define IM_CIPHER_AES_GCM (1<<0)
 #define IM_CIPHER_CHACHA_POLY (1<<1)
 };

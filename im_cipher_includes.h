@@ -1,3 +1,9 @@
+/*
+ * @file im_cipher_includes.h
+ *
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
+
 #ifndef IM_CIPHER_INCLUDES_H
 #define IM_CIPHER_INCLUDES_H
 
@@ -13,7 +19,9 @@
 
 /* Cipher states */
 struct im_cipher_st_ctx {
- 	/* crypt_type = 1 (encryption), crypt_type = 0 (decryption) */
+ 	/* 
+ 	 * Encryption mode: crypt_type = IM_CIPHER_ENCRYPT 
+ 	 * Decryption mode: crypt_type = IM_CIPHER_DECRYPT */
 	int crypt_type;
 
 	/* im_chacha_poly.c context */

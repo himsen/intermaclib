@@ -1,10 +1,14 @@
 /*
-chacha-merged.c version 20080118
-D. J. Bernstein
-Public domain.
-*/
+ * chacha-merged.c version 20080118
+ * D. J. Bernstein
+ * Public domain.
+ */
 
-/* TODO: which license? */
+/*
+ * @file im_chacha.h
+ *
+ * @author D. J. Bernstein
+ */
 
 #ifndef IM_CHACHA_H
 #define IM_CHACHA_H

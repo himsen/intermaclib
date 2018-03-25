@@ -1,3 +1,9 @@
+/*
+ * @file im_core.h
+ *
+ * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
+
 #ifndef IM_CORE_H
 #define IM_CORE_H
 
@@ -53,18 +59,31 @@
 struct intermac_ctx {
 	struct im_cipher_ctx *im_c_ctx;
 
-	u_int chunk_length; /* Includes chunk delimiter */
-	u_int chunk_counter; /* Incremented by one for each new chunk; reset for each new message */
-	u_int message_counter; /* Incremented by one for each new message */
-	u_int ciphertext_length; /*  Length of resulting ciphertext after encrypting 'chunk_length' bytes, for chosen encryption function (counted in bytes) */
-	u_int mactag_length; /* Length of MAC tag (counted in bytes) */
-	u_int number_of_chunks; /* Number of chunks of current message being encrypted(set in im_get_length) */ 
+	/* Includes chunk delimiter */
+	u_int chunk_length;
+	/* Incremented by one for each new chunk; reset for each new message */
+	u_int chunk_counter;
+	/* Incremented by one for each new message */
+	u_int message_counter;
+	/* 
+	 * Length of resulting ciphertext after encrypting 'chunk_length' bytes, 
+	 * for chosen encryption function (counted in bytes) 
+	 */
+	u_int ciphertext_length;
+	/* Length of MAC tag (counted in bytes) */
+	u_int mactag_length;
+	/* Number of chunks of current message being encrypted */
+	u_int number_of_chunks; 
 
 	/* Decryption specific */
 	u_char *decryption_buffer; 
 	u_int decrypt_buffer_offset;
 	u_int decrypt_buffer_allocated;
-	u_int src_processed; /* Counts how many bytes have been processed from input for current invocation of decryption function */
+	 /* 
+	  * Counts how many bytes that have been processed from input for current
+	  * invocation of decryption function 
+	  */
+	u_int src_processed;
 };
 
 /* API */
