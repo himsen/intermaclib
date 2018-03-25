@@ -4,11 +4,15 @@ TODO
  - Write nice (easy to read and extend) tests
  - Add guards for calling functions too many times (data limits) **
  - Make more portable with size_t instead of u_int (or understand what is the difference)
- - Licencse?
+ - Licencse? 
  - Add support for authenticated additional data
  - Implement re-key **
  - Add fake parse and encrypt after recieving final chunk **
  - Re-write im_initialise (because it is damm ugly...)
+ - function descriptions should be moved to header files
+ - spring clean of intermac repo and openssh-intermac repo
+ - change padding such that it does not rely on the printable char '0' but actually the byte 0
+ - Make it consistent where the chunk_length parameter is in function definitions
 
  DONE:
  - Write decryption function description
