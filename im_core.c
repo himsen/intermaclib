@@ -46,21 +46,22 @@ int im_padding_length_decrypt(u_char *decrypted_chunk, u_int chunk_length,
 		return IM_ERR;
 	}
 
-	/* Retrieve padding byte */
-	padding_byte = decrypted_chunk[chunk_length - 1];
+	/* 
+	 * Retrieve padding byte
+	 * decrypted_chunk[chunk_length - 1] is the chunk delimiter
+	 */
+	padding_byte = decrypted_chunk[chunk_length - 2];
 
 	/* 
 	 * Run through decrypted chunk one byte at a time. Flag when a byte different
 	 * from the padding byte is encountered.  
 	 */
-	for (i = 1; i < chunk_length; i++) {
-		//flag |= memcmp(&decrypted_chunk[(chunk_length - 1) - padding_counter], 
-		//	&decrypted_chunk[((chunk_length - 1) - 1) - padding_counter], sizeof(u_char));
+	for (i = 1; i < chunk_length - 1; i++) {
 
-		flag |= memcmp(&padding_byte, &decrypted_chunk[(chunk_length - 1) - i],
+		flag |= memcmp(&padding_byte, &decrypted_chunk[(chunk_length - 2) - i],
 						sizeof(u_char));
 
-		if (!flag) {
+		if (flag == 0) {
 			padding_counter = padding_counter + 1;
 		}
 	}
