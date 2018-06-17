@@ -22,5 +22,3 @@ $(pwd)/ssh -vvv -c im-aes128-gcm-128 -o Compression=no localhost -p 22221 -i ./i
 
 
 cd ../intermaclib/; make clean; make; cd ../openssh-portable-intermac/; make clean; cp ../intermaclib/libintermac.a ./libintermac.a; make
-
-Git uses SSH?

@@ -7,6 +7,8 @@
  * @file im_poly.c
  *
  * @author Andrew Moon
+ * Minor modifications by
+ * Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
  */
 
 #include <sys/types.h>
@@ -31,7 +33,8 @@
 	} while (0)
 
 void
-im_poly1305_auth(unsigned char out[IM_POLY1305_TAGLEN], const unsigned char *m, size_t inlen, const unsigned char key[IM_POLY1305_KEYLEN]) {
+im_poly1305_auth(unsigned char out[IM_POLY1305_TAGLEN], const unsigned char *m,
+	size_t inlen, const unsigned char key[IM_POLY1305_KEYLEN]) {
 	uint32_t t0,t1,t2,t3;
 	uint32_t h0,h1,h2,h3,h4;
 	uint32_t r0,r1,r2,r3,r4;

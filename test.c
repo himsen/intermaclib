@@ -3,6 +3,10 @@
 #include "im_core.h"
 #include <stdio.h>
 
+/* TODO
+ * Extend unit tests
+ */
+
 int main(void) {
 	
 	printf("Intermac tests start\n");

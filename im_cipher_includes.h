@@ -21,7 +21,8 @@
 struct im_cipher_st_ctx {
  	/* 
  	 * Encryption mode: crypt_type = IM_CIPHER_ENCRYPT 
- 	 * Decryption mode: crypt_type = IM_CIPHER_DECRYPT */
+ 	 * Decryption mode: crypt_type = IM_CIPHER_DECRYPT
+ 	 */
 	int crypt_type;
 
 	/* im_chacha_poly.c context */

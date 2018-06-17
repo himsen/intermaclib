@@ -8,6 +8,8 @@
  * @file im_chacha.c
  *
  * @author D. J. Bernstein
+ * Minor modifications by
+ * Torben Hansen <torben.hansen.2015@rhul.ac.uk>
  */
 
 #include "im_chacha.h"

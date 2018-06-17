@@ -13,19 +13,10 @@
 
 #include "im_cipher.h"
 
-/* Error codes */
-
-#define IM_ERR	-1
-
-/* Status codes */
-
-#define IM_OK 0
-#define IM_REKEY 2
-
 /* Constants */
 
-#define IM_DECRYPTION_BUFFER_LENGTH (256*1024) /* Equal to OpenSSH MAX_PACKET_SIZE */
-#define IM_NONCE_LENGTH 12 /* TODO configurable */
+#define IM_DECRYPTION_BUFFER_LENGTH (256*1024)
+#define IM_NONCE_LENGTH 12
 /* TODO below constants does not align with the InterMAC in practice paper */
 #define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
 #define IM_CHUNK_DELIMITER_FINAL '\x62'
@@ -55,6 +46,7 @@
 		((u_char *)(p))[7] = __v & 0xff; \
 	} while (0)
 
+/* TODO should be opaque */
 /* Intermac context definition */
 struct intermac_ctx {
 	struct im_cipher_ctx *im_c_ctx;
@@ -86,20 +78,14 @@ struct intermac_ctx {
 	u_int src_processed;
 };
 
-/* API */
+/* Public InterMAC API */
 
-int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*, int);
+int im_initialise(struct intermac_ctx**, const u_char*, u_int, const char*,
+	int);
 int im_encrypt(struct intermac_ctx*, u_char**, u_int*, const u_char*, u_int);
-int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*, u_char**, u_int*, u_int*);
+int im_decrypt(struct intermac_ctx*, const u_char*, u_int, u_int, u_int*,
+	u_char**, u_int*, u_int*);
 int im_cleanup(struct intermac_ctx*);
-
-/* Internal API */
-
-int im_get_length(struct intermac_ctx*, u_int, u_int*);
-int im_padding_length_encrypt(u_int, u_int, u_int, u_int*);
-int im_add_alternating_padding(u_char*, u_char, u_int, u_int);
-int im_padding_length_decrypt(u_char*, u_int, u_int*);
-void im_encode_nonce(u_char*, u_int, u_int);
 
 void im_dump_data(const void*, size_t, FILE*); /* TODO: remove */
 

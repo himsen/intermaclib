@@ -28,6 +28,7 @@ struct im_chacha_ctx {
 
 void im_chacha_keysetup(struct im_chacha_ctx*, const u_char*, u_int);
 void im_chacha_noncesetup(struct im_chacha_ctx*, u_char*, const u_char*);
-void im_chacha_encrypt_bytes(struct im_chacha_ctx*, const u_char*, u_char*, u_int);
+void im_chacha_encrypt_bytes(struct im_chacha_ctx*, const u_char*, u_char*,
+	u_int);
 
 #endif	/* IM_CHACHA_H */
