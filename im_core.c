@@ -43,7 +43,7 @@ static int im_padding_length_decrypt(u_char *decrypted_chunk,
  * @param number_of_chunks The number of chunks when _length_
  * bytes are InterMAC encoded
  * @param res Address to which the result is written
- * @return IM_OK on success, IM_ERR on failure 
+ * @return IM_OK on success, IM_ERR on failure
  */
 static inline int im_padding_length_encrypt(u_int length, u_int chunk_length, 
 	u_int number_of_chunks, u_int *res) {

@@ -5,16 +5,21 @@
  * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
  */
 
+#include "im_common.h"
 #include "im_aes_gcm.h"
 
-#include <stdio.h>
-
-#include "im_common.h"
-
-/* TODO
- * Functions descriptions
+/*
+ * @brief
+ *
+ * @param im_cs_ctx Cipher context
+ * @param key Encryption/decryption key
+ * @param key_len Length of key
+ * @param nonce Nonce
+ * @param crypt_type Initialise cipher to either
+ * encrypt mode (IM_CIPHER_ENCRYPT)
+ * or decrypt mode (IM_CIPHER_DECRYPT)
+ * @return IM_OK on success, IM_ERR on failure
  */
-
 int im_aes_gcm_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key,
 	u_int key_len, u_char *nonce, int crypt_type) {
 
@@ -44,6 +49,16 @@ out:
 	return r;
 }
 
+/*
+ * @brief
+ *
+ * @param im_cs_ctx Cipher context
+ * @param nonce Nonce
+ * @param dst The address to which the encrypted/decrypted data is written
+ * @param src The data that is encrypted/decrypted
+ * @param src_length Length of data that is encrypted/decrypted
+ * @return IM_OK on success, IM_ERR on failure
+ */
 int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce,
 	u_char *dst, const u_char *src, u_int src_length) {
 
@@ -85,6 +100,12 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce,
 	return IM_OK;
 }
 
+/*
+ * @brief
+ *
+ * @param
+ * @return Void
+ */
 void im_aes_gcm_cleanup(struct im_cipher_st_ctx *im_cs_ctx) {
 
 	if (im_cs_ctx != NULL && im_cs_ctx->evp != NULL) {

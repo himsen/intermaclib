@@ -28,10 +28,18 @@
 #include "im_common.h"
 #include "im_chacha_poly.h"
 
-/* TODO 
- * function descriptions
+/*
+ * @brief Initialises ChaCha20-Poly1305 internal cipher
+ *
+ * @param im_cs_ctx Cipher context
+ * @param key Encryption/decryption key
+ * @param key_len Length of key
+ * @param nonce Nonce
+ * @param crypt_type Initialise cipher to either
+ * encrypt mode (IM_CIPHER_ENCRYPT)
+ * or decrypt mode (IM_CIPHER_DECRYPT)
+ * @return IM_OK on success, IM_ERR on failure
  */
-
 int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key,
 	u_int key_len, u_char *nonce, int crypt_type) {
 
@@ -47,6 +55,16 @@ int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key,
 	return IM_OK;
 }
 
+/*
+ * @brief ChaCha20-poly1305 encrypt/decrypt a message/ciphertext
+ *
+ * @param im_cs_ctx Cipher context
+ * @param nonce Nonce
+ * @param dst The address to which the encrypted/decrypted data is written
+ * @param src The data that is encrypted/decrypted
+ * @param src_length Length of data that is encrypted/decrypted
+ * @return IM_OK on success, IM_ERR on failure
+ */
 int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce,
 	u_char *dst, const u_char *src, u_int src_length) {
 
@@ -81,6 +99,12 @@ int im_chacha_poly_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce,
 	return IM_OK;
 }
 
+/*
+ * @brief Clean up ChaCha20-poly1305 context
+ *
+ * @param im_cs_ctx Cipher context
+ * @return VOID
+ */
 void im_chacha_poly_cleanup(struct im_cipher_st_ctx *im_cs_ctx) {
 
 	if (im_cs_ctx != NULL && &im_cs_ctx->im_cc_ctx != NULL) {

@@ -10,3 +10,5 @@ TODO
  - Make it consistent where the chunk_length parameter is in function definitions
  - Add fPIC?
  - Enable compile optimisation
+ - Reduce complexity of im_decrypt()
+ - README
