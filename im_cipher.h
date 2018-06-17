@@ -19,8 +19,10 @@ struct im_cipher {
 	u_int key_len;
 	u_int tag_len;
 	u_int ciphertext_expansion;
-	int (*init)(struct im_cipher_st_ctx *ctx, const u_char *key, u_int key_len, u_char *nonce, int crypt_type);
-	int (*do_cipher)(struct im_cipher_st_ctx *ctx, u_char *nonce, u_char *dst, const u_char *src, u_int src_length);
+	int (*init)(struct im_cipher_st_ctx *ctx, const u_char *key, u_int key_len,
+		u_char *nonce, int crypt_type);
+	int (*do_cipher)(struct im_cipher_st_ctx *ctx, u_char *nonce, u_char *dst,
+		const u_char *src, u_int src_length);
 	void (*cleanup)(struct im_cipher_st_ctx *ctx);
 	u_int flags;
 /* Available internal InterMAC ciphers */

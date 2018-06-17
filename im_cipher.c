@@ -9,10 +9,12 @@
 
 #include "im_cipher.h"
 
-/* Definition available internal InterMAC ciphers */
+/* Register available internal InterMAC ciphers */
 static const struct im_cipher ciphers[] = {
-	{"im-aes128-gcm", 128, 16, 0, im_aes_gcm_init, im_aes_gcm_cipher, im_aes_gcm_cleanup, IM_CIPHER_AES_GCM},
-	{"im-chacha-poly", 256, 16, 0, im_chacha_poly_init, im_chacha_poly_cipher, im_chacha_poly_cleanup, IM_CIPHER_CHACHA_POLY}
+	{"im-aes128-gcm", 128, 16, 0, im_aes_gcm_init, im_aes_gcm_cipher,
+	im_aes_gcm_cleanup, IM_CIPHER_AES_GCM},
+	{"im-chacha-poly", 256, 16, 0, im_chacha_poly_init, im_chacha_poly_cipher,
+	im_chacha_poly_cleanup, IM_CIPHER_CHACHA_POLY}
 };
 
 /*
@@ -25,9 +27,9 @@ const struct im_cipher * im_get_cipher(const char *name) {
 	const struct im_cipher *c;
 
 	for (c = ciphers; c->name != NULL; c++) {
-
-		if (strcmp(c->name, name) == 0)
+		if (strcmp(c->name, name) == 0) {
 			return c;
+		}
 	}
 	
 	return NULL;

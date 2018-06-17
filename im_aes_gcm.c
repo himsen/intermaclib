@@ -11,6 +11,10 @@
 
 #include "im_common.h"
 
+/* TODO
+ * Functions descriptions
+ */
+
 int im_aes_gcm_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key,
 	u_int key_len, u_char *nonce, int crypt_type) {
 
@@ -50,28 +54,33 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce,
 
 		/* Sets the MAC tag */
 		if(EVP_CIPHER_CTX_ctrl(im_cs_ctx->evp, EVP_CTRL_GCM_SET_TAG, 16,
-			(u_char *) src + src_length) == 0)
+			(u_char *) src + src_length) == 0) {
 			goto out;
+		}
 	}
 
 	/* Set new nonce */
-	if (EVP_CipherInit(im_cs_ctx->evp, NULL, NULL, nonce, crypt_type) == 0)
+	if (EVP_CipherInit(im_cs_ctx->evp, NULL, NULL, nonce, crypt_type) == 0) {
 		goto out;
+	}
 
 	/* Encrypt/decrypt */
-	if (EVP_Cipher(im_cs_ctx->evp, dst, src, src_length) < 0) 
+	if (EVP_Cipher(im_cs_ctx->evp, dst, src, src_length) < 0) {
 		goto out;
+	}
 
 	/* Verify (on derypt) or compute (on encrypt) MAC tag */
-	if (EVP_Cipher(im_cs_ctx->evp, NULL, NULL, 0) < 0)
+	if (EVP_Cipher(im_cs_ctx->evp, NULL, NULL, 0) < 0) {
 		goto out;
+	}
 	
 	if (IM_CIPHER_ENCRYPT == crypt_type) {
 
 		/* Set tag */
 		if (EVP_CIPHER_CTX_ctrl(im_cs_ctx->evp, EVP_CTRL_GCM_GET_TAG, 16,
-			dst + src_length) == 0)
+			dst + src_length) == 0) {
 			goto out;
+		}
 	}
 
 	r = IM_OK;
