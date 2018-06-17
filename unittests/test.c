@@ -1,7 +1,8 @@
 /* Unit tests */
 
-#include "im_core.h"
 #include <stdio.h>
+
+#include "../im_core.h"
 
 /* TODO
  * Extend unit tests
