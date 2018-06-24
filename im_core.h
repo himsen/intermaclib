@@ -53,17 +53,22 @@ struct intermac_ctx {
 
 	/* Includes chunk delimiter */
 	u_int chunk_length;
+
 	/* Incremented by one for each new chunk; reset for each new message */
 	u_int chunk_counter;
+
 	/* Incremented by one for each new message */
 	u_int message_counter;
-	/* 
-	 * Length of resulting ciphertext after encrypting 'chunk_length' bytes, 
-	 * for chosen encryption function (counted in bytes) 
+
+	/*
+	 * Length of resulting ciphertext after encrypting 'chunk_length' bytes,
+	 * for chosen encryption function (counted in bytes)
 	 */
 	u_int ciphertext_length;
+	
 	/* Length of MAC tag (counted in bytes) */
 	u_int mactag_length;
+
 	/* Number of chunks of current message being encrypted */
 	u_int number_of_chunks; 
 
@@ -71,11 +76,36 @@ struct intermac_ctx {
 	u_char *decryption_buffer; 
 	u_int decrypt_buffer_offset;
 	u_int decrypt_buffer_allocated;
-	 /* 
+
+	 /*
 	  * Counts how many bytes that have been processed from input for current
-	  * invocation of decryption function 
+	  * invocation of decryption function
 	  */
 	u_int src_processed;
+
+	/*
+	 * Encryption limit (counted in bytes).
+	 * Zero means that no such limits exist.
+	 */
+	u_int encryption_limit;
+
+	/*
+	 * Encryption invocation limit
+	 * Zero means that no such limits exist.
+	 */
+	u_int encryption_inv_limit;
+
+	/*
+	 * Authentication limit (counted in bytes).
+	 * Zero means that no such limits exist.
+	 */
+	u_int authentication_limit;
+
+	/*
+	 * Authentication invocation limit.
+	 * Zero means that no such limits exist.
+	 */
+	u_int authentication_inv_limit;
 };
 
 /* Public InterMAC API */

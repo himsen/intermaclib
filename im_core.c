@@ -240,6 +240,11 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *key,
 		return IM_ERR;
 	}
 
+	/* Check chunk length restrictions */
+	if (check_chunk_length_restrictions(chunk_length, chosen_cipher)== -1) {
+		return IM_ERR;
+	}
+
 	/* Allocate new contexts */
 	if ((_im_ctx = (struct intermac_ctx *) calloc(1, sizeof(*_im_ctx)))
 		== NULL) {
@@ -263,7 +268,7 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *key,
 	 * The cipher context is written to _im_cs_ctx
 	 */
 	if ((r = chosen_cipher->init(&_im_cs_ctx, key, chosen_cipher->key_len,
-		nonce, crypt_type)) != 0) {
+		nonce, crypt_type)) != IM_OK) {
 		return IM_ERR;
 	}
 
@@ -276,6 +281,14 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *key,
 	_im_ctx->message_counter = 0;
 	_im_ctx->src_processed = 0;
 	_im_ctx->number_of_chunks = 0;
+	_im_ctx->encryption_limit = get_encryption_limit(chunk_length,
+		chosen_cipher);
+	_im_ctx->encryption_inv_limit = get_encryption_inv_limit(chunk_length,
+		chosen_cipher);
+	_im_ctx->authentication_limit = get_authentication_limit(chunk_length,
+		chosen_cipher);
+	_im_ctx->authentication_inv_limit = get_authentication_inv_limit(
+		chunk_length,chosen_cipher);
 
 	_im_ctx->decrypt_buffer_offset = 0;
 	_im_ctx->decrypt_buffer_allocated = IM_DECRYPTION_BUFFER_LENGTH;
