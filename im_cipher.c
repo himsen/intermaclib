@@ -9,9 +9,28 @@
 
 #include "im_cipher.h"
 
-/* Cipher specific chunk length restrictions */
+/* Cipher specific constants */
+/* aes-gcm */
+#define IM_AES_GCM_KEY_LENGTH 128
+#define IM_AES_GCM_TAG_LENGTH 16
+#define IM_AES_GCM_CT_EXPANSION 0
+/* chacha20-poly1305 */
+#define IM_CHACHA_POLY_KEY_LENGTH 128
+#define IM_CHACHA_POLY_TAG_LENGTH 16
+#define IM_CHACHA_POLY_CT_EXPANSION 0
+
 /* TODO update */
+/* Cipher specific limits */
+/*
+ * aes-gcm:
+ * chunk length < 2^{32} - 2^5
+ */
 #define IM_CIPHER_CHACHA_POLY_CHUNK_LENGTH 10
+/*
+ * chacha20-poly1305:
+ * chunk length < 2^{70}
+ */
+#define IM_CIPHER_AES_GCM_CHUNK_LENGTH 10
 
 
 /* Register available internal InterMAC ciphers */
@@ -52,7 +71,7 @@ const struct im_cipher * im_get_cipher(const char *name) {
  * @param
  * @return
  */
-int check_chunk_length_restrictions(u_int chunk_length,
+int check_chunk_length_limit(u_int chunk_length,
 	const struct im_cipher *cipher) {
 
 	switch(cipher->flags) {
@@ -62,6 +81,9 @@ int check_chunk_length_restrictions(u_int chunk_length,
 			}
 			return 0;
 		case IM_CIPHER_AES_GCM:
+			if (chunk_length > IM_CIPHER_AES_GCM_CHUNK_LENGTH) {
+				return -1;
+			}
 			return 0;
 		default:
 			return -1;
@@ -78,7 +100,14 @@ int check_chunk_length_restrictions(u_int chunk_length,
 u_int get_encryption_limit(u_int chunk_length,
 	const struct im_cipher *cipher) {
 
-	return 0;
+	switch(cipher->flags) {
+		case IM_CIPHER_CHACHA_POLY:
+			return 0;
+		case IM_CIPHER_AES_GCM:
+			return 0;
+		default:
+			return -1;
+	}
 }
 
 /*
@@ -91,7 +120,14 @@ u_int get_encryption_limit(u_int chunk_length,
 u_int get_encryption_inv_limit(u_int chunk_length,
 	const struct im_cipher *cipher) {
 
-	return 0;
+	switch(cipher->flags) {
+		case IM_CIPHER_CHACHA_POLY:
+			return 0;
+		case IM_CIPHER_AES_GCM:
+			return 0;
+		default:
+			return -1;
+	}
 }
 
 /*
@@ -104,7 +140,14 @@ u_int get_encryption_inv_limit(u_int chunk_length,
 u_int get_authentication_limit(u_int chunk_length,
 	const struct im_cipher *cipher) {
 
-	return 0;
+	switch(cipher->flags) {
+		case IM_CIPHER_CHACHA_POLY:
+			return 0;
+		case IM_CIPHER_AES_GCM:
+			return 0;
+		default:
+			return -1;
+	}
 }
 
 /*
@@ -117,5 +160,12 @@ u_int get_authentication_limit(u_int chunk_length,
 u_int get_authentication_inv_limit(u_int chunk_length,
 	const struct im_cipher *cipher) {
 
-	return 0;
+	switch(cipher->flags) {
+		case IM_CIPHER_CHACHA_POLY:
+			return 0;
+		case IM_CIPHER_AES_GCM:
+			return 0;
+		default:
+			return -1;
+	}
 }

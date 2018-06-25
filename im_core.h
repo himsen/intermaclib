@@ -17,6 +17,8 @@
 
 #define IM_DECRYPTION_BUFFER_LENGTH (256*1024)
 #define IM_NONCE_LENGTH 12
+#define IM_NONCE_CHUNK_CTR_LEN 4
+#define IM_NONCE_MESSAGE_CTR_LEN 8
 /* TODO below constants does not align with the InterMAC in practice paper */
 #define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
 #define IM_CHUNK_DELIMITER_FINAL '\x62'
@@ -49,6 +51,7 @@
 /* TODO should be opaque */
 /* Intermac context definition */
 struct intermac_ctx {
+	/* Internal nonce-based cipher context */
 	struct im_cipher_ctx *im_c_ctx;
 
 	/* Includes chunk delimiter */
@@ -106,6 +109,13 @@ struct intermac_ctx {
 	 * Zero means that no such limits exist.
 	 */
 	u_int authentication_inv_limit;
+
+	/*
+	 * Fail flag.
+	 * If fail = 1 im_encrypt() and im_decrypt() will fail if 
+	 * invoked.
+	 */
+	int fail;
 };
 
 /* Public InterMAC API */

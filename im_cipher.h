@@ -37,7 +37,7 @@ struct im_cipher_ctx {
 };
 
 const struct im_cipher * im_get_cipher(const char *name);
-int check_chunk_length_restrictions(u_int chunk_length,
+int check_chunk_length_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
 u_int get_encryption_limit(u_int chunk_length,
 	const struct im_cipher *cipher);

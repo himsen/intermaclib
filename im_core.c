@@ -26,7 +26,7 @@ static inline int im_get_length(struct intermac_ctx *im_ctx, u_int length,
 	u_int *res);
 static inline int im_add_alternating_padding(u_char *chunk, u_char last_byte,
 	u_int padding_length, u_int chunk_length);
-static inline void im_encode_nonce(u_char *nonce, u_int chunk_counter,
+static inline int im_encode_nonce(u_char *nonce, u_int chunk_counter,
 	u_int message_counter);
 static int im_padding_length_decrypt(u_char *decrypted_chunk,
 	u_int chunk_length, u_int *padding_length);
@@ -94,7 +94,7 @@ static int im_padding_length_decrypt(u_char *decrypted_chunk,
 	 * Run through decrypted chunk one byte at a time. Flag when a byte
 	 * different from the padding byte is encountered.  
 	 */
-	for (i = 1; i < chunk_length - 1; i++) {
+	for (i = 1; i < (chunk_length - 1); i++) {
 
 		padding_end |= memcmp(&padding_byte,
 			&decrypted_chunk[(chunk_length - 2) - i], sizeof(u_char));
@@ -130,7 +130,7 @@ static inline int im_add_alternating_padding(u_char *chunk, u_char last_byte,
 		return IM_OK;
 	}
 
-	if (padding_length > chunk_length - 1) {
+	if (padding_length > (chunk_length - 1)) {
 		return IM_ERR;
 	}
 
@@ -166,7 +166,7 @@ static inline int im_get_length(struct intermac_ctx *im_ctx, u_int length,
 	int noc = 0;
 
 	/* im_div_roundup computation cannot handle these specific values */
-	if (length == 0 || im_ctx->chunk_length == 1) {
+	if ((length == 0) || (im_ctx->chunk_length == 1)) {
 		return IM_ERR;
 	}
 
@@ -200,13 +200,22 @@ static inline int im_get_length(struct intermac_ctx *im_ctx, u_int length,
  * @param nonce The address to which the result is written
  * @param chunk_counter The InterMAC chunk_counter
  * @param message_counter The InterMAC message_counter
- * @return Void
+ * @return IM_OK on success, IM_ERR on failure
  */
-static inline void im_encode_nonce(u_char *nonce, u_int chunk_counter,
+static inline int im_encode_nonce(u_char *nonce, u_int chunk_counter,
 	u_int message_counter) {
+
+	if (chunk_counter > ((2^(IM_NONCE_CHUNK_CTR_LEN)) - 1)) {
+		return IM_ERR;
+	}
+	if (message_counter > ((2^(IM_NONCE_MESSAGE_CTR_LEN)) - 1)) {
+		return IM_ERR;
+	}
 
 	IM_U32ENCODE(nonce, chunk_counter);
 	IM_U64ENCODE(nonce + 4, message_counter);
+
+	return IM_OK;
 }
 
 /*
@@ -241,7 +250,7 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *key,
 	}
 
 	/* Check chunk length restrictions */
-	if (check_chunk_length_restrictions(chunk_length, chosen_cipher)== -1) {
+	if (check_chunk_length_limit(chunk_length, chosen_cipher) == -1) {
 		return IM_ERR;
 	}
 
@@ -295,6 +304,8 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *key,
 	_im_ctx->decryption_buffer = (u_char *) calloc(IM_DECRYPTION_BUFFER_LENGTH,
 		sizeof(u_char));
 
+	_im_ctx->fail = 0;
+
 	_im_c_ctx->cipher = chosen_cipher;
 	_im_c_ctx->im_cs_ctx = _im_cs_ctx;
 	*(im_ctx) = _im_ctx;
@@ -307,7 +318,7 @@ out:
 	if (_im_c_ctx != NULL) {
 		free(_im_c_ctx);
 	}
-	if (r != IM_OK ) {
+	if (r != IM_OK) {
 		chosen_cipher->cleanup(&_im_cs_ctx);
 	}
 	if (_im_ctx != NULL) {
@@ -353,6 +364,20 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	u_char chunk_delimiter_final_no_padding = IM_CHUNK_DELIMITER_FINAL_NO_PADDING;
 	u_char nonce[IM_NONCE_LENGTH];
 
+	/*
+	 * Check if we should fail.
+	 * This happens if a nonce restriction is vioalate or
+	 * if the internal cipher usage restriction is violated.
+	 */
+	if (im_ctx->fail == 1) {
+		return IM_ERR;
+	}
+
+	/* Verify that we are in encryption mode */
+	if (IM_CIPHER_ENCRYPT != im_ctx->im_c_ctx->im_cs_ctx.crypt_type) {
+		return IM_ERR;
+	}
+
 	/* 
 	 * Computes the size (in bytes) of final ciphertext 
 	 * as well as the number of chunk (saved to im_ctx->number_of_chunks)
@@ -391,7 +416,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 		ciphertext_buffer_offset = k * (ciphertext_length + mactag_length);
 
 		/* Adds chunk delimiter */
-		if ( k < number_of_chunks - 1 ) {
+		if (k < (number_of_chunks - 1)) {
 			/* No yet processing the final chunk */
 
 			memcpy(chunk_buf, src + current_chunk, chunk_length - 1);
@@ -432,9 +457,23 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 			return IM_ERR;
 		}
 
+		/*
+		 * If chunk counter overflows and we have more chunks to processs
+		 * then error.
+		 */
+		if ((chunk_counter + 1) < chunk_counter && k < (number_of_chunks + 1)) {
+			return IM_ERR;
+		}
 		chunk_counter = chunk_counter + 1;
 	}
 
+	/*
+	 * Check if message counter overflows.
+	 * Error if encryption function is called again.
+	 */
+	if ((chunk_counter + 1) < chunk_counter) {
+		im_ctx->fail = 1;
+	}
 	im_ctx->message_counter = message_counter + 1;
 	im_ctx->chunk_counter = 0;
 	im_ctx->number_of_chunks = 0;
@@ -512,12 +551,26 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_char expected_tag[mactag_length];
 	u_char nonce[IM_NONCE_LENGTH];
 
-	*size_decrypted_ciphertext = 0;
+	/*
+	 * Check if we should fail.
+	 * This can occur if a nonce restriction is vioalate or
+	 * when an internal encryption scheme usage restriction is violated.
+	 */
+	if (im_ctx->fail == 1) {
+		return IM_ERR;
+	}
+
+	/* Verify that we are in encryption mode */
+	if (IM_CIPHER_DECRYPT != im_ctx->im_c_ctx->im_cs_ctx.crypt_type) {
+		return IM_ERR;
+	}
+
 	/*
 	 * Saves how many bytes that has been processed in *this* call at
 	 * any given time
 	 */
-	*this_src_processed = 0; 
+	*this_src_processed = 0;
+	*size_decrypted_ciphertext = 0;
 
 	for (;;) {
 
@@ -531,14 +584,14 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		decrypt_buffer_offset = im_ctx->decrypt_buffer_offset;
 
 		/* Checks if the decryption buffer can store another chunk */
-		if (decrypt_buffer_offset + (chunk_length - 1) > 
+		if ((decrypt_buffer_offset + (chunk_length - 1)) > 
 			IM_DECRYPTION_BUFFER_LENGTH) {
 			return IM_ERR;
 		}
 
 		/* Checks if there are enough bytes to decrypt a chunk */
-		if (src_length + src_consumed - src_processed - *this_src_processed < 
-			ciphertext_length + mactag_length) {
+		if ((src_length + src_consumed - src_processed - *this_src_processed) < 
+			(ciphertext_length + mactag_length)) {
 			return IM_OK; /* Return IM_OK: wait for more bytes */
 		}
 
@@ -677,7 +730,7 @@ int im_cleanup(struct intermac_ctx *im_ctx) {
 	return IM_OK;
 }
 
-/* TODO: remove */
+/* TODO remove */
 void im_dump_data(const void *s, size_t len, FILE *f) {
 
 	size_t i, j;
