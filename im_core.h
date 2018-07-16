@@ -8,6 +8,7 @@
 #define IM_CORE_H
 
 #include <sys/types.h>
+#include <stdint.h>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -17,8 +18,10 @@
 
 #define IM_DECRYPTION_BUFFER_LENGTH (256*1024)
 #define IM_NONCE_LENGTH 12
-#define IM_NONCE_CHUNK_CTR_LEN 4
-#define IM_NONCE_MESSAGE_CTR_LEN 8
+#define IM_NONCE_CHUNK_CTR_BIT_LEN 4
+#define IM_NONCE_CHUNK_CTR_LEN ((2^(IM_NONCE_CHUNK_CTR_BIT_LEN)) - 1)
+#define IM_NONCE_MESSAGE_CTR_BIT_LEN 8
+#define IM_NONCE_MESSAGE_CTR_LEN ((2^(IM_NONCE_MESSAGE_CTR_BIT_LEN)) - 1)
 /* TODO below constants does not align with the InterMAC in practice paper */
 #define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
 #define IM_CHUNK_DELIMITER_FINAL '\x62'
@@ -89,26 +92,30 @@ struct intermac_ctx {
 	/*
 	 * Encryption limit (counted in bytes).
 	 * Zero means that no such limits exist.
+	 * NOT implemented (TODO)
 	 */
-	u_int encryption_limit;
+	uint32_t encryption_limit;
 
 	/*
 	 * Encryption invocation limit
 	 * Zero means that no such limits exist.
+	 * NOT implemented (TODO)
 	 */
-	u_int encryption_inv_limit;
+	uint32_t encryption_inv_limit;
 
 	/*
 	 * Authentication limit (counted in bytes).
 	 * Zero means that no such limits exist.
+	 * NOT implemented (TODO)
 	 */
-	u_int authentication_limit;
+	uint32_t authentication_limit;
 
 	/*
 	 * Authentication invocation limit.
 	 * Zero means that no such limits exist.
+	 * NOT implemented (TODO)
 	 */
-	u_int authentication_inv_limit;
+	uint32_t authentication_inv_limit;
 
 	/*
 	 * Fail flag.

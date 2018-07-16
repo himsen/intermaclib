@@ -8,6 +8,7 @@
 #define IM_CIPHER_H
 
 #include <sys/types.h>
+#include <stdint.h>
 
 /* Cipher implementations */
 #include "im_aes_gcm.h"
@@ -39,13 +40,13 @@ struct im_cipher_ctx {
 const struct im_cipher * im_get_cipher(const char *name);
 int check_chunk_length_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-u_int get_encryption_limit(u_int chunk_length,
+uint32_t get_encryption_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-u_int get_encryption_inv_limit(u_int chunk_length,
+uint32_t get_encryption_inv_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-u_int get_authentication_limit(u_int chunk_length,
+uint32_t get_authentication_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-u_int get_authentication_inv_limit(u_int chunk_length,
+uint32_t get_authentication_inv_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
 
 
