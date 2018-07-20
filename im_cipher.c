@@ -23,13 +23,13 @@
 /*
  * aes-gcm:
  * MAX chunk length < 2^{36} - 2^5
- * Actual MAX used 2^{32}
+ * Actual MAX used 2^{32} - 1
  */
 #define IM_CIPHER_CHACHA_POLY_CHUNK_LENGTH 0xFFFFFFFF
 /*
  * chacha20-poly1305:
  * MAX chunk length < 2^{70}
- * Actual MAX used 2^{32}
+ * Actual MAX used 2^{32} - 1
  */
 #define IM_CIPHER_AES_GCM_CHUNK_LENGTH 0xFFFFFFFF
 

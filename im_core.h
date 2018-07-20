@@ -13,15 +13,16 @@
 #include <stdio.h>
 
 #include "im_cipher.h"
+#include "im_common.h"
 
 /* Constants */
 
 #define IM_DECRYPTION_BUFFER_LENGTH (256*1024)
 #define IM_NONCE_LENGTH 12
-#define IM_NONCE_CHUNK_CTR_BIT_LEN 4
-#define IM_NONCE_CHUNK_CTR_LEN ((2^(IM_NONCE_CHUNK_CTR_BIT_LEN)) - 1)
-#define IM_NONCE_MESSAGE_CTR_BIT_LEN 8
-#define IM_NONCE_MESSAGE_CTR_LEN ((2^(IM_NONCE_MESSAGE_CTR_BIT_LEN)) - 1)
+/* Maximum chunk counter 2^{32} - 1 */
+#define IM_NONCE_CHUNK_CTR_LEN 0xFFFFFFFF
+/* Maximum message counter 2^{64} - 1 */
+#define IM_NONCE_MESSAGE_CTR_LEN 0xFFFFFFFFFFFFFFFF
 /* TODO below constants does not align with the InterMAC in practice paper */
 #define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
 #define IM_CHUNK_DELIMITER_FINAL '\x62'
@@ -61,10 +62,10 @@ struct intermac_ctx {
 	u_int chunk_length;
 
 	/* Incremented by one for each new chunk; reset for each new message */
-	u_int chunk_counter;
+	uint32_t chunk_counter;
 
 	/* Incremented by one for each new message */
-	u_int message_counter;
+	uint64_t message_counter;
 
 	/*
 	 * Length of resulting ciphertext after encrypting 'chunk_length' bytes,

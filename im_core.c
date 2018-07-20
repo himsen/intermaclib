@@ -15,6 +15,7 @@
 #include "im_common.h"
 #include "im_core.h"
 #include "im_cipher.h"
+#include <inttypes.h>
 
 /* Only works for x,y > 0 */
 #define im_div_roundup(x,y) ( 1 + ( ((x) - 1) / (y) ) )
@@ -26,12 +27,10 @@ static inline int im_get_length(struct intermac_ctx *im_ctx, u_int length,
 	u_int *res);
 static inline int im_add_alternating_padding(u_char *chunk, u_char last_byte,
 	u_int padding_length, u_int chunk_length);
-static inline int im_encode_nonce(u_char *nonce, u_int chunk_counter,
-	u_int message_counter);
+static inline int im_encode_nonce(u_char *nonce, uint32_t chunk_counter,
+	uint64_t message_counter);
 static int im_padding_length_decrypt(u_char *decrypted_chunk,
 	u_int chunk_length, u_int *padding_length);
-
-#define DP(x) fprintf(stderr, "IM_DEBUG_PRINT: %d\n", x);
 
 /* 
  * @brief Computes the number of padding bytes needed to hit a multiple of 
@@ -193,13 +192,13 @@ static inline int im_get_length(struct intermac_ctx *im_ctx, u_int length,
  * @param message_counter The InterMAC message_counter
  * @return IM_OK on success, IM_ERR on failure
  */
-static inline int im_encode_nonce(u_char *nonce, u_int chunk_counter,
-	u_int message_counter) {
+static inline int im_encode_nonce(u_char *nonce, uint32_t chunk_counter,
+	uint64_t message_counter) {
 
-	if (chunk_counter > IM_NONCE_CHUNK_CTR_LEN) {
+	if ((uint32_t) chunk_counter > (uint32_t) IM_NONCE_CHUNK_CTR_LEN) {
 		return IM_ERR;
 	}
-	if (message_counter > IM_NONCE_MESSAGE_CTR_LEN) {
+	if ((uint64_t) message_counter > (uint64_t) IM_NONCE_MESSAGE_CTR_LEN) {
 		return IM_ERR;
 	}
 
@@ -355,8 +354,8 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	u_int chunk_length = 0;
 	u_int ciphertext_length = 0;
 	u_int mactag_length = 0;
-	u_int chunk_counter = 0;
-	u_int message_counter = 0;
+	uint32_t chunk_counter = 0;
+	uint64_t message_counter = 0;
 
 	u_char *chunk_buf = NULL;
 	u_char chunk_delimiter_not_final = IM_CHUNK_DELIMITER_NOT_FINAL;
@@ -480,7 +479,8 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 		 * If chunk counter overflows and we have more chunks to processs
 		 * then error.
 		 */
-		if ((chunk_counter + 1) < chunk_counter && k < (number_of_chunks + 1)) {
+		if ((uint32_t) (chunk_counter + 1) < (uint32_t) chunk_counter
+			&& k < (number_of_chunks + 1)) {
 			
 			goto fail_clean;
 			r = IM_ERR;
@@ -492,7 +492,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	 * Check if message counter overflows.
 	 * Error if encryption function is called again.
 	 */
-	if ((chunk_counter + 1) < chunk_counter) {
+	if ((uint64_t) (message_counter + 1) < (uint64_t) message_counter) {
 		im_ctx->fail = 1;
 	}
 
@@ -513,23 +513,12 @@ fail_clean:
 }
 
 /*
- * TODO Make im_decrypt() signature easier to understand by removing src_consumed
- * It should really be an application responsibilityt o input the correct pointer
- * They would nede to store the src_consumed anyway, so should be able to increment 
- * the pointer correctly. We are safe because the verification will fail because 
- * chunk counter will be out-of-sync. In this line of thought we should also get 
- * red of src_processed which adds even more complexity.
- * In addition, think of ways to make this function easier to use, because atm 
- * it is highly complex which is not the intention of this library.
- */
-
-/*
  * @brief InterMAC decrypts a ciphertext fragment. The function will
- * return when ONE ciphertext has been fully decrypted and will not 
- * attempt to decrypt further ciphertets (or ciphertext parts) that 
+ * return when ONE ciphertext has been fully decrypted and will not
+ * attempt to decrypt further ciphertets (or ciphertext parts) that
  * might be contained in a ciphertext fragment.
  *
- * The caller must NOT free the return pointer _*dst_. We are aware 
+ * The caller must NOT free the return pointer _*dst_. We are aware
  * that this functions borders to insanity...
  *
  * @param im_ctc The InterMAC context
@@ -538,9 +527,9 @@ fail_clean:
  * decrypted
  * @param dst The address to which the a decrypted ciphertext is written, note
  * that this will only happen when the full ciphertext has been decrypted
- * @param size_decrypted_ciphertext The address to which the size of the 
+ * @param size_decrypted_ciphertext The address to which the size of the
  * decrypted ciphertext is written
- * @param total_allocated The amout of memory (counted in bytes) allocated at 
+ * @param total_allocated The amout of memory (counted in bytes) allocated at
  * the address dst
  * @return IM_OK && *dst == NULL if waiting for more data, IM_OK && *dst
  * != NULL if a ciphertext has been fully decrypted, IM_ERR on failure
@@ -551,7 +540,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 	/* TODO add ref
 	 * WARNING This function could leak timing information becasue
-	 * execution time atm depends on the length of the message being decrypted 
+	 * execution time atm depends on the length of the message being decrypted
 	 * and not the length of the ciphertext fragment. To counter this, a dummy
 	 * decryption must be implemented that performs a fake decryption of the
 	 * remaining ciphertext fragments (i.e as long as there is enough data for
@@ -562,7 +551,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	 */
 
 	u_char *decryption_buffer = NULL;
-	u_char chunk_delimiter;/* Current chunk delimiter */
+	u_char chunk_delimiter;
 	u_char chunk_delimiter_not_final = IM_CHUNK_DELIMITER_NOT_FINAL;
 	u_char chunk_delimiter_final = IM_CHUNK_DELIMITER_FINAL;
 	u_char chunk_delimiter_final_no_padding = IM_CHUNK_DELIMITER_FINAL_NO_PADDING;
@@ -576,8 +565,8 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	 */
 	u_int src_processed = 0; 
 	u_int padding_length = 0;
-	u_int chunk_counter = 0;
-	u_int message_counter = 0;
+	uint32_t chunk_counter = 0;
+	uint64_t message_counter = 0;
 	u_int decrypt_buffer_offset = 0;
 
 	int chunk_delimiter_final_no_padding_cmp = 0;
@@ -722,12 +711,12 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		memcpy(decryption_buffer + decrypt_buffer_offset, decrypted_chunk,
 			chunk_length);
 
+
 		/*
 		 * Updates decryption state variables to reflect we have decrypted
 		 * another chunk
 		 */
 		im_ctx->decrypt_buffer_offset = decrypt_buffer_offset + chunk_length;
-		im_ctx->chunk_counter = chunk_counter + 1;
 		im_ctx->src_processed = im_ctx->src_processed + (ciphertext_length + mactag_length);
 		*this_src_processed = *this_src_processed + (ciphertext_length + mactag_length);
 
@@ -741,6 +730,27 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			/* Final chunk decryoted but there is padding to be removed */
 			break;
 		}
+
+
+		/*
+		 * If chunk counter overflows make sure to fail. If we reach this
+		 * point we have more chunks to process.
+		 */
+		if ((uint32_t) (chunk_counter + 1) < (uint32_t) chunk_counter) {
+
+			r = IM_ERR;
+			goto fail_clean;
+		}
+
+		im_ctx->chunk_counter = chunk_counter + 1;
+	}
+
+	/*
+	 * Check if message counter overflows.
+	 * Error if encryption function is called again.
+	 */
+	if ((uint64_t) (message_counter + 1) < (uint64_t) message_counter) {
+		im_ctx->fail = 1;
 	}
 
 	/* 
@@ -821,7 +831,7 @@ int im_cleanup(struct intermac_ctx *im_ctx) {
 	return IM_OK;
 }
 
-/* TODO remove */
+/* TODO move to unit tests */
 void im_dump_data(const void *s, size_t len, FILE *f) {
 
 	size_t i, j;
