@@ -362,6 +362,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	u_char chunk_delimiter_final = IM_CHUNK_DELIMITER_FINAL;
 	u_char chunk_delimiter_final_no_padding = IM_CHUNK_DELIMITER_FINAL_NO_PADDING;
 	u_char nonce[IM_NONCE_LENGTH];
+	u_char *ciphertext = NULL;
 
 	int r = IM_OK;
 
@@ -401,9 +402,9 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	number_of_chunks = im_ctx->number_of_chunks;
 
 	/* Allocates memory for final ciphertext */
-	*dst = NULL;
-	*dst = (u_char *) calloc(1, *dst_length);
-	if (*dst == NULL) {
+	ciphertext = NULL;
+	ciphertext = (u_char *) calloc(1, *dst_length);
+	if (ciphertext == NULL) {
 		return IM_ERR;
 	}
 
@@ -422,7 +423,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	/* 
 	 * Loop that encrypts each chunk, computes MAC tag and append the MAC tag
 	 * to the resulting chunk ciphertext.
-	 * Writes result to address *dst. 
+	 * Writes result to address ciphertext.. 
 	 */
 	for (k = 0; k < number_of_chunks; k++) {
 
@@ -468,7 +469,7 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 		 * cipher. Writes result to address dst + ciphertext_buffer_offset
 		 */
 		if (im_ctx->im_c_ctx->cipher->do_cipher(&im_ctx->im_c_ctx->im_cs_ctx,
-			nonce, *dst + ciphertext_buffer_offset, chunk_buf,
+			nonce, ciphertext + ciphertext_buffer_offset, chunk_buf,
 			chunk_length + 1) != 0) {
 
 			r = IM_ERR;
@@ -500,9 +501,13 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	im_ctx->chunk_counter = 0;
 	im_ctx->number_of_chunks = 0;
 
+	/* Save to output buffer */
+	*dst = ciphertext;
+	ciphertext = NULL;
+
 fail_clean:
-	if (r != IM_OK && *dst != NULL) {
-		free(*dst);
+	if (r != IM_OK && ciphertext != NULL) {
+		free(ciphertext);
 	}
 	if (chunk_buf != NULL) {
 		memset(chunk_buf, 0, chunk_length + 1);
