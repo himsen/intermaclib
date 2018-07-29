@@ -26,6 +26,10 @@ int im_aes_gcm_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key,
 	EVP_CIPHER_CTX *_evp = NULL;
 	int r = IM_ERR;
 
+	if (key_len != 128) {
+		goto out;
+	}
+
 	if ((_evp = EVP_CIPHER_CTX_new()) == NULL) {
 		goto out;
 	}

@@ -591,7 +591,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		return IM_ERR;
 	}
 
-	/* Verify that we are in encryption mode */
+	/* Verify that we are in decryption mode */
 	if (IM_CIPHER_DECRYPT != im_ctx->im_c_ctx->im_cs_ctx.crypt_type) {
 		return IM_ERR;
 	}
@@ -730,7 +730,6 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			/* Final chunk decryoted but there is padding to be removed */
 			break;
 		}
-
 
 		/*
 		 * If chunk counter overflows make sure to fail. If we reach this

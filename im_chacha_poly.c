@@ -44,7 +44,7 @@ int im_chacha_poly_init(struct im_cipher_st_ctx *im_cs_ctx, const u_char *key,
 	u_int key_len, u_char *nonce, int crypt_type) {
 
 	/* Only key length supported */
-	if ((key_len / 8) != 32) {
+	if (key_len != 256) {
 		return IM_ERR;
 	}
 
