@@ -78,7 +78,7 @@ int im_aes_gcm_cipher(struct im_cipher_st_ctx *im_cs_ctx, u_char *nonce,
 	}
 
 	/* Set new nonce */
-	if (EVP_CipherInit(im_cs_ctx->evp, NULL, NULL, nonce, crypt_type) == 0) {
+	if (EVP_CipherInit_ex(im_cs_ctx->evp, NULL, NULL, NULL, nonce, crypt_type) == 0) {
 		return IM_ERR;
 	}
 
