@@ -2,3 +2,4 @@
 *.a
 intermaclib
 testintermac
+im-performance/im_bench
