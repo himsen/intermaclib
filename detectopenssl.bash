@@ -15,6 +15,6 @@ echo "First (presumably without NI support):"
 openssl speed aes-128-cbc
 echo
 echo "Second (presumably with NI support):"
-openssl speed -evp aes-128-cb
+openssl speed -evp aes-128-cbc
 echo
 echo "Second speed test should be faster than the first speed test"
