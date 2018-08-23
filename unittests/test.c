@@ -282,6 +282,10 @@ fail:
 }
 
 int main(void) {
+
+	u_int chunk_length = 64;
+	u_int key_length_aesgcm = 16;
+	u_int key_length_chachapoly = 32;
 	
 	fprintf(stderr, "Intermac unit tests start\n");
 
@@ -289,36 +293,36 @@ int main(void) {
 
 	fprintf(stderr, "\n---Test 1---\n");
 
-	if (im_test1(16, 64, "im-aes128-gcm") != 1) {
+	if (im_test1(key_length_aesgcm, chunk_length, "im-aes128-gcm") != 1) {
 		fprintf(stderr, "||||FAIL|||| im_test1() with im-aes128-gcm\n");
 		return 0;
 	}
 
-	if (im_test1(32, 64, "im-chacha-poly") != 1) {
+	if (im_test1(key_length_chachapoly, chunk_length, "im-chacha-poly") != 1) {
 		fprintf(stderr, "||||FAIL|||| im_test1 with im-chacha-poly\n");
 		return 0;
 	}
 
 	fprintf(stderr, "\n---Test 2---\n");
 
-	if (im_test2(16, 64, "im-aes128-gcm") != 1) {
+	if (im_test2(key_length_aesgcm, chunk_length, "im-aes128-gcm") != 1) {
 		fprintf(stderr, "||||FAIL|||| im_test2() with im-aes128-gcm\n");
 		return 0;
 	}
 
-	if (im_test2(32, 64, "im-chacha-poly") != 1) {
+	if (im_test2(key_length_chachapoly, chunk_length, "im-chacha-poly") != 1) {
 		fprintf(stderr, "||||FAIL|||| im_test2() with im-chacha-poly\n");
 		return 0;
 	}
 
 	fprintf(stderr, "\n---Test 3---\n");
 
-	if (im_test3(16, 64, "im-aes128-gcm") != 1) {
+	if (im_test3(key_length_aesgcm, chunk_length, "im-aes128-gcm") != 1) {
 		fprintf(stderr, "||||FAIL|||| im_test3() with im-aes128-gcm\n");
 		return 0;
 	}
 
-	if (im_test3(32, 64, "im-chacha-poly") != 1) {
+	if (im_test3(key_length_chachapoly, chunk_length, "im-chacha-poly") != 1) {
 		fprintf(stderr, "||||FAIL|||| im_test3() with im-chacha-poly\n");
 		return 0;
 	}
