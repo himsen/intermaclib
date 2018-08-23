@@ -91,32 +91,36 @@ struct intermac_ctx {
 	u_int src_processed;
 
 	/*
+	 * Total Number of chunks encrypted
+	 */
+	uint64_t total_encrypted_chunks;
+
+	/*
 	 * Encryption limit (counted in bytes).
 	 * Zero means that no such limits exist.
 	 * NOT implemented (TODO)
 	 */
-	uint32_t encryption_limit;
+	uint64_t encryption_limit;
 
 	/*
 	 * Encryption invocation limit
 	 * Zero means that no such limits exist.
-	 * NOT implemented (TODO)
 	 */
-	uint32_t encryption_inv_limit;
+	uint64_t encryption_inv_limit;
 
 	/*
 	 * Authentication limit (counted in bytes).
 	 * Zero means that no such limits exist.
 	 * NOT implemented (TODO)
 	 */
-	uint32_t authentication_limit;
+	uint64_t authentication_limit;
 
 	/*
 	 * Authentication invocation limit.
 	 * Zero means that no such limits exist.
 	 * NOT implemented (TODO)
 	 */
-	uint32_t authentication_inv_limit;
+	uint64_t authentication_inv_limit;
 
 	/*
 	 * Fail flag.

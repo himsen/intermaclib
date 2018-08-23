@@ -287,10 +287,11 @@ int im_initialise(struct intermac_ctx **im_ctx, const u_char *key,
 	_im_ctx->message_counter = 0;
 	_im_ctx->src_processed = 0;
 	_im_ctx->number_of_chunks = 0;
+	_im_ctx->total_encrypted_chunks = 0;
+	_im_ctx->encryption_inv_limit = get_encryption_inv_limit(chunk_length,
+		chosen_cipher);
 	/* Limits NOT yet implemented (TODO) */
 	_im_ctx->encryption_limit = get_encryption_limit(chunk_length,
-		chosen_cipher);
-	_im_ctx->encryption_inv_limit = get_encryption_inv_limit(chunk_length,
 		chosen_cipher);
 	_im_ctx->authentication_limit = get_authentication_limit(chunk_length,
 		chosen_cipher);
@@ -400,6 +401,16 @@ int im_encrypt(struct intermac_ctx *im_ctx, u_char **dst, u_int *dst_length,
 	}
 
 	number_of_chunks = im_ctx->number_of_chunks;
+
+	/*
+	 * Check whether we would exceed the limit on the number of
+	 * invocation we can make of the chosen cipher.
+	 */
+	if (im_ctx->encryption_inv_limit > 0 &&
+		(uint64_t) (im_ctx->total_encrypted_chunks + number_of_chunks) >
+		(uint64_t) im_ctx->encryption_inv_limit) {
+		return IM_ERR;
+	}
 
 	/* Allocates memory for final ciphertext */
 	ciphertext = NULL;

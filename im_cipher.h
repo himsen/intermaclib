@@ -40,13 +40,13 @@ struct im_cipher_ctx {
 const struct im_cipher * im_get_cipher(const char *name);
 int check_chunk_length_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-uint32_t get_encryption_limit(u_int chunk_length,
+uint64_t get_encryption_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-uint32_t get_encryption_inv_limit(u_int chunk_length,
+uint64_t get_encryption_inv_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-uint32_t get_authentication_limit(u_int chunk_length,
+uint64_t get_authentication_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
-uint32_t get_authentication_inv_limit(u_int chunk_length,
+uint64_t get_authentication_inv_limit(u_int chunk_length,
 	const struct im_cipher *cipher);
 
 #endif /* IM_CIPHER_H */
