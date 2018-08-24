@@ -14,7 +14,7 @@
 
 #define IM_BENCH_WARM_UP 500
 #define IM_BENCH_STAT_SIZE 10000
-#define IM_BENCH_COMPLEXICTY_LOOP 1 
+#define IM_BENCH_COMPLEXICTY_LOOP 1
 
 #define _IM_BENCH_NUM_CIPHERS 2
 char * im_bench_ciphers[] = {
