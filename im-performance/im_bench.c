@@ -12,8 +12,8 @@
 #include "cpucycles.h"
 #include "im_core.h"
 
-#define IM_BENCH_WARM_UP 1
-#define IM_BENCH_STAT_SIZE 1
+#define IM_BENCH_WARM_UP 500
+#define IM_BENCH_STAT_SIZE 10000
 #define IM_BENCH_COMPLEXICTY_LOOP 1 
 
 #define _IM_BENCH_NUM_CIPHERS 2
@@ -26,13 +26,19 @@ u_int im_bench_keylens[] = {
 	256
 };
 
-#define IM_BENCH_NUM_CHUNKLENS 5
+#define IM_BENCH_NUM_CHUNKLENS 12
 u_int im_bench_chunklens[] = {
+	255,
 	256,
+	511,
 	512,
+	1023,
 	1024,
+	2047,
 	2048,
+	4095,
 	4096,
+	8191,
 	8192
 };
 
@@ -74,7 +80,7 @@ void im_bench_save_result(char *function, char *cipher, u_int chunk_length,
 }
 
 /*
- * Test im_init()
+ * Test im_initialise()
  */
 void im_bench_initialise(char *cipher, u_int chunk_length, char *key) {
 
@@ -124,7 +130,7 @@ void im_bench_initialise(char *cipher, u_int chunk_length, char *key) {
 }
 
 /*
- * Test im_enc()
+ * Test im_encrypt()
  */
 void im_bench_encrypt(char *cipher, u_int chunk_length, char *key,
 	u_char *src, u_int src_length) {
@@ -171,7 +177,7 @@ void im_bench_encrypt(char *cipher, u_int chunk_length, char *key,
 }
 
 /*
- * Test im_dec()
+ * Test im_decrypt()
  */
 void im_bench_decrypt(char *cipher, u_int chunk_length, char *key,
 	u_char *src, u_int src_length) {
@@ -235,17 +241,10 @@ void im_bench_decrypt(char *cipher, u_int chunk_length, char *key,
 
 }
 
-int main(int argc, char *argv[]) {
+void im_bench_run_init(char *keys[]) {
 
 	int count_chunk_len = 0;
 	int count_cipher = 0;
-
-	/* Generate random key */
-	u_char *key_chacha_poly = calloc(1, sizeof(u_char)*32);
-	u_char *key_aes_gcm = calloc(1, sizeof(u_char)*16);
-	char * keys[2] = {key_aes_gcm, key_chacha_poly};
-
-	/***** im_initialise() benchmark *****/
 
 	/* Choose cipher */
 	for (count_cipher = 0; count_cipher < _IM_BENCH_NUM_CIPHERS;
@@ -266,22 +265,12 @@ int main(int argc, char *argv[]) {
 				);
 		}
 	}
+}
 
-	/***** im_encrypt() benchmark *****/
+void im_bench_run_enc(char *keys[], u_char *src, u_int src_length) {
 
-	u_char *src = NULL;
-	u_int src_length = 0;
-	char *pattern = "abcdefgh";
-	int i = 0;
-	int div8 = 0;
-
-	/* Generate src data */
-	src_length = 100 * 1024; /* 100kb */
-	src = malloc(sizeof(u_char) * src_length);
-	div8 = src_length / 8; /* Read 8 bytes at a time */
-	for(i = 0; i < div8; i = i + 8) {
-		memcpy(src + i, pattern, 8);
-	}
+	int count_chunk_len = 0;
+	int count_cipher = 0;
 
 	/* Choose cipher */
 	for (count_cipher = 0; count_cipher < _IM_BENCH_NUM_CIPHERS;
@@ -304,8 +293,12 @@ int main(int argc, char *argv[]) {
 				);
 		}
 	}
+}
 
-	/***** im_derypt() benchmark *****/
+void im_bench_run_dec(char *keys[], u_char *src, u_int src_length) {
+
+	int count_chunk_len = 0;
+	int count_cipher = 0;
 
 	/* Choose cipher */
 	for (count_cipher = 0; count_cipher < _IM_BENCH_NUM_CIPHERS;
@@ -328,7 +321,43 @@ int main(int argc, char *argv[]) {
 				);
 		}
 	}
+}
 
+int main(int argc, char *argv[]) {
+
+	u_char *src = NULL;
+	u_int src_length = 0;
+	char *pattern = "abcdefgh";
+	int i = 0;
+	int div8 = 0;
+
+	/* Generate random key */
+	u_char *key_chacha_poly = calloc(1, sizeof(u_char)*32);
+	u_char *key_aes_gcm = calloc(1, sizeof(u_char)*16);
+	char * keys[2] = {key_aes_gcm, key_chacha_poly};
+
+	/* Generate src data */
+	//src_length = 100 * 1024; /* 100kb */
+	src_length = 4096;
+	src = malloc(sizeof(u_char) * src_length);
+	div8 = src_length / 8; /* Read 8 bytes at a time */
+	for(i = 0; i < div8; i = i + 8) {
+		memcpy(src + i, pattern, 8);
+	}
+
+	/***** im_initialise() benchmark *****/
+
+	im_bench_run_init(keys);
+
+	/***** im_encrypt() benchmark *****/
+
+	//im_bench_run_enc(keys, src, src_length);
+
+	/***** im_derypt() benchmark *****/
+
+	//im_bench_run_dec(keys, src, src_length);
+
+	/* Free stuff */
 	free(key_chacha_poly);
 	free(key_aes_gcm);
 	free(src);
