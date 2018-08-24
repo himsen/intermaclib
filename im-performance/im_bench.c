@@ -26,8 +26,10 @@ u_int im_bench_keylens[] = {
 	256
 };
 
-#define IM_BENCH_NUM_CHUNKLENS 12
+#define IM_BENCH_NUM_CHUNKLENS 14
 u_int im_bench_chunklens[] = {
+	127,
+	128,
 	255,
 	256,
 	511,
