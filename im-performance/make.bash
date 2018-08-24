@@ -1,6 +1,6 @@
 printf "Compiling dependency\n"
 cd cpucycles-20060326
-printf  "Dependecy test run\n"
+printf  "Dependency test run\n"
 sh do
 cd ..
 printf "Compiling benchmarks\n"
