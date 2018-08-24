@@ -351,11 +351,11 @@ int main(int argc, char *argv[]) {
 
 	/***** im_encrypt() benchmark *****/
 
-	//im_bench_run_enc(keys, src, src_length);
+	im_bench_run_enc(keys, src, src_length);
 
 	/***** im_derypt() benchmark *****/
 
-	//im_bench_run_dec(keys, src, src_length);
+	im_bench_run_dec(keys, src, src_length);
 
 	/* Free stuff */
 	free(key_chacha_poly);
