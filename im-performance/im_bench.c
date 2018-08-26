@@ -12,8 +12,8 @@
 #include "cpucycles.h"
 #include "im_core.h"
 
-#define IM_BENCH_WARM_UP 500
-#define IM_BENCH_STAT_SIZE 10000
+#define IM_BENCH_WARM_UP 0
+#define IM_BENCH_STAT_SIZE 1
 #define IM_BENCH_COMPLEXICTY_LOOP 1
 
 #define _IM_BENCH_NUM_CIPHERS 2
@@ -47,7 +47,7 @@ u_int im_bench_chunklens[] = {
 /*
  * Saves benchmarks
  */
-void im_bench_save_result(char *function, char *cipher, u_int chunk_length,
+void im_bench_save_result(u_int msg_size, char *function, char *cipher, u_int chunk_length,
 	unsigned long long *clocks, int header) {
 
 	FILE *fd = NULL;
@@ -67,7 +67,7 @@ void im_bench_save_result(char *function, char *cipher, u_int chunk_length,
 	if (fd != NULL) {
 
 		if (header == 0) {
-			fprintf(fd, "%s\n%s\n%d\n%d\n", function, cipher,
+			fprintf(fd, "%s\n%s\n%u\n%d\n%d\n", function, cipher, msg_size,
 				IM_BENCH_WARM_UP, IM_BENCH_STAT_SIZE);
 		}
 		else {
@@ -128,7 +128,7 @@ void im_bench_initialise(char *cipher, u_int chunk_length, char *key) {
 	*/
 
 	/* Save benchmarks */
-	im_bench_save_result("initialise", cipher + 3, chunk_length, clocks, 1);
+	im_bench_save_result(0, "initialise", cipher + 3, chunk_length, clocks, 1);
 }
 
 /*
@@ -175,7 +175,7 @@ void im_bench_encrypt(char *cipher, u_int chunk_length, char *key,
 	im_cleanup(im_ctx);
 
 	/* Save benchmarks */
-	im_bench_save_result("encrypt", cipher + 3, chunk_length, clocks, 1);
+	im_bench_save_result(0, "encrypt", cipher + 3, chunk_length, clocks, 1);
 }
 
 /*
@@ -239,7 +239,7 @@ void im_bench_decrypt(char *cipher, u_int chunk_length, char *key,
 	im_cleanup(im_ctx_decrypt);
 
 	/* Save benchmarks */
-	im_bench_save_result("decrypt", cipher + 3, chunk_length, clocks, 1);
+	im_bench_save_result(0, "decrypt", cipher + 3, chunk_length, clocks, 1);
 
 }
 
@@ -253,7 +253,7 @@ void im_bench_run_init(char *keys[]) {
 		++count_cipher){
 
 		/* Put header */
-		im_bench_save_result("initialise", im_bench_ciphers[count_cipher] + 3,
+		im_bench_save_result(0, "initialise", im_bench_ciphers[count_cipher] + 3,
 			0, NULL, 0);
 
 		/* Choose chunk length */
@@ -279,7 +279,7 @@ void im_bench_run_enc(char *keys[], u_char *src, u_int src_length) {
 		++count_cipher){
 
 		/* Put header */
-		im_bench_save_result("encrypt", im_bench_ciphers[count_cipher] + 3,
+		im_bench_save_result(src_length, "encrypt", im_bench_ciphers[count_cipher] + 3,
 			0, NULL, 0);
 
 		/* Choose chunk length */
@@ -307,7 +307,7 @@ void im_bench_run_dec(char *keys[], u_char *src, u_int src_length) {
 		++count_cipher){
 
 		/* Put header */
-		im_bench_save_result("decrypt", im_bench_ciphers[count_cipher] + 3,
+		im_bench_save_result(src_length, "decrypt", im_bench_ciphers[count_cipher] + 3,
 			0, NULL, 0);
 
 		/* Choose chunk length */
