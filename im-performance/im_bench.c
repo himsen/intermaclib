@@ -12,8 +12,8 @@
 #include "cpucycles.h"
 #include "im_core.h"
 
-#define IM_BENCH_WARM_UP 0
-#define IM_BENCH_STAT_SIZE 1
+#define IM_BENCH_WARM_UP 500
+#define IM_BENCH_STAT_SIZE 5000
 #define IM_BENCH_COMPLEXICTY_LOOP 1
 
 #define _IM_BENCH_NUM_CIPHERS 2
@@ -339,8 +339,10 @@ int main(int argc, char *argv[]) {
 	char * keys[2] = {key_aes_gcm, key_chacha_poly};
 
 	/* Generate src data */
+	src_length = 1024; /* 1kb */
+	//src_length = 10 * 1024; /* 10kb */
 	//src_length = 100 * 1024; /* 100kb */
-	src_length = 4096;
+	//src_length = 1024 * 1024; /* 1mb */
 	src = malloc(sizeof(u_char) * src_length);
 	div8 = src_length / 8; /* Read 8 bytes at a time */
 	for(i = 0; i < div8; i = i + 8) {
