@@ -243,7 +243,7 @@ void im_bench_decrypt(char *cipher, u_int chunk_length, char *key,
 
 }
 
-void im_bench_run_init(char *keys[]) {
+void im_bench_run_init(u_char *keys[]) {
 
 	int count_chunk_len = 0;
 	int count_cipher = 0;
@@ -269,7 +269,7 @@ void im_bench_run_init(char *keys[]) {
 	}
 }
 
-void im_bench_run_enc(char *keys[], u_char *src, u_int src_length) {
+void im_bench_run_enc(u_char *keys[], u_char *src, u_int src_length) {
 
 	int count_chunk_len = 0;
 	int count_cipher = 0;
@@ -297,7 +297,7 @@ void im_bench_run_enc(char *keys[], u_char *src, u_int src_length) {
 	}
 }
 
-void im_bench_run_dec(char *keys[], u_char *src, u_int src_length) {
+void im_bench_run_dec(u_char *keys[], u_char *src, u_int src_length) {
 
 	int count_chunk_len = 0;
 	int count_cipher = 0;
@@ -332,11 +332,28 @@ int main(int argc, char *argv[]) {
 	char *pattern = "abcdefgh";
 	int i = 0;
 	int div8 = 0;
+	u_int key_chacha_poly_len = 32;
+	u_int key_aes_gcm_len = 16;
+	time_t seed;
 
-	/* Generate random key */
-	u_char *key_chacha_poly = calloc(1, sizeof(u_char)*32);
-	u_char *key_aes_gcm = calloc(1, sizeof(u_char)*16);
-	char * keys[2] = {key_aes_gcm, key_chacha_poly};
+	/* 
+	 * Generate random key
+	 * This is not supposed to be cryptographically random
+	 */
+	srand((unsigned) time(&seed));
+	u_char *key_chacha_poly = calloc(1, sizeof(u_char)*key_chacha_poly_len);
+	u_char *key_aes_gcm = calloc(1, sizeof(u_char)*key_aes_gcm_len);
+	for (i = 0; i < key_chacha_poly_len; i++) {
+		key_chacha_poly[i] = rand();
+		printf("%02X", key_chacha_poly[i]);
+	}
+	printf("\n");
+	for (i = 0; i < key_aes_gcm_len; i++) {
+		key_aes_gcm[i] = rand();
+		printf("%02X", key_aes_gcm[i]);
+	}
+	printf("\n");
+	u_char * keys[2] = {key_aes_gcm, key_chacha_poly};
 
 	/* Generate src data */
 	src_length = 1024; /* 1kb */
