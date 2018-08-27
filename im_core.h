@@ -17,7 +17,7 @@
 
 /* Constants */
 
-#define IM_DECRYPTION_BUFFER_LENGTH (256*1024) /* 256 kb */
+#define IM_DECRYPTION_BUFFER_LENGTH (1024*1024) /* 1 mb */
 #define IM_NONCE_LENGTH 12
 /* Maximum chunk counter 2^{32} - 1 */
 #define IM_NONCE_CHUNK_CTR_LEN 0xFFFFFFFF
