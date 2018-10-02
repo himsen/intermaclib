@@ -74,13 +74,16 @@ void im_bench_save_result(time_t time, u_int msg_size, char *function,
 	if (fd != NULL) {
 
 		if (header == 0) {
-			fprintf(fd, "%d-%d-%d\n%s\n%s\n%u\n%d\n%d\n%d\n", tm.tm_year + 1900,
-				tm.tm_mon + 1, tm.tm_mday, function, cipher, msg_size,
-				IM_BENCH_WARM_UP, IM_BENCH_COMPLEXITY_LOOP, IM_BENCH_STAT_SIZE);
+			fprintf(fd, "%d-%d-%d\n%s\n%s\n%d\n%d\n%d\n", tm.tm_year + 1900,
+				tm.tm_mon + 1, tm.tm_mday, function, cipher, IM_BENCH_WARM_UP,
+				IM_BENCH_COMPLEXITY_LOOP, IM_BENCH_STAT_SIZE);
 		}
-		else {
+		else if (header == 1) {
 			fprintf(fd, "%u\n", chunk_length);
 			fprintf(fd, "%0.2f\n", res);
+		}
+		else if (header == 2) {
+			fprintf(fd, "%u\n", msg_size);
 		}
 
 		fclose(fd);
@@ -215,18 +218,21 @@ void im_bench_run_enc(time_t time, u_char *keys[], u_char *srcs[],
 	int count_chunk_len = 0;
 	int count_cipher = 0;
 
-
 	/* Choose cipher */
 	for (count_cipher = 0; count_cipher < _IM_BENCH_NUM_CIPHERS;
 		++count_cipher) {
 
-			/* Choose msg length */
+		/* Put header */
+		im_bench_save_result(time, 0, "encrypt",
+			im_bench_ciphers[count_cipher] + 3, 0, 0, 0);
+
+		/* Choose msg length */
 		for (count_msg_len = 0; count_msg_len < IM_BENCH_NUM_SRC_LENGTS;
 			++count_msg_len) {
 
-			/* Put header */
+			/* record msg size */
 			im_bench_save_result(time, src_lengths[count_msg_len], "encrypt",
-				im_bench_ciphers[count_cipher] + 3, 0, 0, 0);
+				im_bench_ciphers[count_cipher] + 3, 0, 0, 2);
 
 			/* Choose chunk length */
 			for (count_chunk_len = 0; count_chunk_len < IM_BENCH_NUM_CHUNKLENS;
@@ -255,13 +261,17 @@ void im_bench_run_dec(time_t time, u_char *keys[], u_char *srcs[],
 	for (count_cipher = 0; count_cipher < _IM_BENCH_NUM_CIPHERS;
 		++count_cipher) {
 
-			/* Choose msg length */
+		/* Put header */
+		im_bench_save_result(time, 0, "decrypt",
+			im_bench_ciphers[count_cipher] + 3, 0, 0, 0);
+
+		/* Choose msg length */
 		for (count_msg_len = 0; count_msg_len < IM_BENCH_NUM_SRC_LENGTS;
 			++count_msg_len) {
 
-			/* Put header */
+			/* Record msg size header */
 			im_bench_save_result(time, src_lengths[count_msg_len], "decrypt",
-				im_bench_ciphers[count_cipher] + 3, 0, 0, 0);
+				im_bench_ciphers[count_cipher] + 3, 0, 0, 2);
 
 			/* Choose chunk length */
 			for (count_chunk_len = 0; count_chunk_len < IM_BENCH_NUM_CHUNKLENS;
