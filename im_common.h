@@ -4,7 +4,7 @@
  * @author Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
  */
 
-#ifndef IM_CCMMON_H
+#ifndef IM_COMMON_H
 #define IM_COMMON_H
 
 /* Return codes */

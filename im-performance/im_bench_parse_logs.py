@@ -18,6 +18,8 @@ HEADER_SIZE = 5
 # 1mb
 LOG_DIR = './libim_logs/log_1024_1024'
 
+SIZE = 1024 * 1024
+
 NUMBER_OF_FUNCTIONS = 3
 functions = ['initialise', 'encrypt', 'decrypt']
 NUMBER_OF_CIPHERS = 2
@@ -125,10 +127,15 @@ def draw_graph(ax, ylabels, data_medians, function, x_label_if):
 	# Max x-label 100kb
 	#max_x_label = 6500000
 	# Max x-label 1mb
+	#if (x_label_if == 1):
+	#	max_x_label = 68000000
+	#elif (x_label_if == 2):
+	#	max_x_label = 15000000
+
 	if (x_label_if == 1):
-		max_x_label = 68000000
+		max_x_label = 68
 	elif (x_label_if == 2):
-		max_x_label = 15000000
+		max_x_label = 15
 
 	y = np.arange(len(ylabels) * 2, step=2)
 	height = 1.2
@@ -139,7 +146,7 @@ def draw_graph(ax, ylabels, data_medians, function, x_label_if):
 	ax.set_yticklabels(ylabels)
 	ax.set_ylabel('chunk length')
 	#ax.invert_yaxis()
-	ax.set_xlabel('clock cycles')
+	ax.set_xlabel('clock cycles / byte')
 	ax.set_xlim(0, max_x_label)
 	ax.set_ylim(-1.5,28-0.5)
 	
@@ -160,10 +167,10 @@ def do_graphs():
 
 	#draw_graph(ax1, chunk_lengths, medians_initialise_aes128_gcm, 'initialise() - aes128-gcm')
 	#draw_graph(ax2, chunk_lengths, medians_initialise_chacha_poly, 'initialise() - chacha20-poly1305')
-	draw_graph(ax3, chunk_lengths, medians_encrypt_aes128_gcm, 'encrypt() - aes128-gcm', 2)
-	draw_graph(ax4, chunk_lengths, medians_encrypt_chacha_poly, 'encrypt() - chacha20-poly1305', 1)
-	draw_graph(ax5, chunk_lengths, medians_decrypt_aes128_gcm, 'decrypt() - aes128-gcm', 2)
-	draw_graph(ax6, chunk_lengths, medians_decrypt_chacha_poly, 'decrypt() - chacha20-poly1305', 1)
+	draw_graph(ax3, chunk_lengths, [ (x / SIZE) for x in medians_encrypt_aes128_gcm], 'encrypt() - aes128-gcm', 2)
+	draw_graph(ax4, chunk_lengths, [ (x / SIZE) for x in medians_encrypt_chacha_poly], 'encrypt() - chacha20-poly1305', 1)
+	draw_graph(ax5, chunk_lengths, [ (x / SIZE) for x in medians_decrypt_aes128_gcm], 'decrypt() - aes128-gcm', 2)
+	draw_graph(ax6, chunk_lengths, [ (x / SIZE) for x in medians_decrypt_chacha_poly], 'decrypt() - chacha20-poly1305', 1)
 
 	#fig.suptitle('Median time for functions initialise(), encrypt() and decrypt() in libInterMAC for different chunk lenths', fontsize=18)
 	#plt.tight_layout(pad=4, w_pad=-8, h_pad=1)
@@ -179,10 +186,10 @@ def do_graphs_grid():
 	ax3 = plt.subplot(gs[2])
 	ax4 = plt.subplot(gs[3])
 
-	draw_graph(ax1, chunk_lengths, medians_encrypt_aes128_gcm, 'encrypt() - aes128-gcm', 2)
-	draw_graph(ax2, chunk_lengths, medians_encrypt_chacha_poly, 'encrypt() - chacha20-poly1305', 1)
-	draw_graph(ax3, chunk_lengths, medians_decrypt_aes128_gcm, 'decrypt() - aes128-gcm', 2)
-	draw_graph(ax4, chunk_lengths, medians_decrypt_chacha_poly, 'decrypt() - chacha20-poly1305', 1)
+	draw_graph(ax1, chunk_lengths, [ (x / SIZE) for x in medians_encrypt_aes128_gcm], 'encrypt() - aes128-gcm', 2)
+	draw_graph(ax2, chunk_lengths, [ (x / SIZE) for x in medians_encrypt_chacha_poly], 'encrypt() - chacha20-poly1305', 1)
+	draw_graph(ax3, chunk_lengths, [ (x / SIZE) for x in medians_decrypt_aes128_gcm], 'decrypt() - aes128-gcm', 2)
+	draw_graph(ax4, chunk_lengths, [ (x / SIZE) for x in medians_decrypt_chacha_poly], 'decrypt() - chacha20-poly1305', 1)
 
 	plt.tight_layout(pad=1, w_pad=1, h_pad=1)
 	plt.show()
