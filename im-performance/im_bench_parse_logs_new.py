@@ -56,13 +56,13 @@ def map_list(function, cipher):
 	l = None
 	string = '{}_{}'.format(function, cipher)
 
-	if list_enc_aes_gcm == string:
+	if (list_enc_aes_gcm == string):
 		l = encrypt_aes128_gcm
-	elif list_dec_aes_gcm == string:
+	elif (list_dec_aes_gcm == string):
 		l = decrypt_aes128_gcm
-	elif list_enc_chacha_poly == string:
+	elif (list_enc_chacha_poly == string):
 		l = encrypt_chacha_poly
-	elif list_dec_chacha_poly == string:
+	elif (list_dec_chacha_poly == string):
 		l = decrypt_chacha_poly
 
 	return l
@@ -115,21 +115,13 @@ def parse_logs():
 
 def draw_graph(ax, ylabels, data_medians, function, x_label_if):
 
-	# Max x-label 1kb
-	#max_x_label = 300000
-	# Max x-label 10kb
-	#max_x_label = 680000
-	# Max x-label 100kb
-	#max_x_label = 6500000
-	# Max x-label 1mb
-	#if (x_label_if == 1):
-	#	max_x_label = 68000000
-	#elif (x_label_if == 2):
-	#	max_x_label = 15000000
-
 	if (x_label_if == 1):
 		max_x_label = 68
 	elif (x_label_if == 2):
+		max_x_label = 15
+	elif (x_label_if == 3):
+		max_x_label = 15
+	elif (x_label_if == 4):
 		max_x_label = 15
 
 	y = np.arange(len(ylabels) * 2, step=2)
