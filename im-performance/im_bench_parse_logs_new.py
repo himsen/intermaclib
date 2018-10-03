@@ -69,7 +69,6 @@ def map_list(function, cipher):
 
 def parse_logs():
 
-	res = 0
 	data = None
 	sub_data = None
 	date = None
@@ -80,8 +79,6 @@ def parse_logs():
 	stat_size = 0
 	chunk_length = 0
 	msg_size = 0
-
-	#print os.listdir(LOG_DIR)
 
 	# Cycle through all files in directory
 	for file in os.listdir(LOG_DIR):
@@ -104,14 +101,16 @@ def parse_logs():
 				# Switch median list
 				data = map_list(function, cipher)
 
-				# For each msg size, and for each chunk length,
-				# retrieve the measured clock cycles
-				for i in range(0, NUMBER_OF_MSG_SIZES):
-					sub_data = data[i]
-					for j in range (0, NUMBER_OF_CHUNK_LENGTHS):
-						sub_data[j] = float(log[HEADER_SIZE + (i + 1) + ((NUMBER_OF_CHUNK_LENGTHS * 2) * i) + j*2 + 1])
+				# Only proceed if we could map the name to a list
+				if (data != None):
+					# For each msg size, and for each chunk length,
+					# retrieve the measured clock cycles
+					for i in range(0, NUMBER_OF_MSG_SIZES):
+						sub_data = data[i]
+						for j in range (0, NUMBER_OF_CHUNK_LENGTHS):
+							sub_data[j] = float(log[HEADER_SIZE + (i + 1) + ((NUMBER_OF_CHUNK_LENGTHS * 2) * i) + j*2 + 1])
 
-				print_data_parsed(decrypt_aes128_gcm, 'DECRYPT with aes128-gcm')
+					print_data_parsed(data, '{} with {}'.format(function, cipher))
 
 def draw_graph(ax, ylabels, data_medians, function, x_label_if):
 
