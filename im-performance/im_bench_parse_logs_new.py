@@ -33,6 +33,12 @@ chunk_lengths = [
 	8191,
 	8192]
 NUMBER_OF_MSG_SIZES = 4
+msg_sizes = [
+	1024, # 1kb
+	8 * 1024, # 8kb
+	15 * 1024 # 15kb
+	50 * 1024 # 50kb
+	]
 
 # Data lists
 list_enc_aes_gcm = 'encrypt_aes128-gcm'
@@ -49,7 +55,12 @@ def print_data_parsed(root_list, name):
 	print 'Parsed data for: {}\n'.format(name)
 
 	for i in range(NUMBER_OF_MSG_SIZES):
-		print 'List {}: {}\n'.format(i, root_list[i])
+		print 'List {}: {}\n'.format(i, cycles_per_byte(root_list[i], msg_sizes[i]))
+		#
+
+def cycles_per_byte(data, size):
+
+	return [ ( x / size) for x in data ]
 
 def map_list(function, cipher):
 
@@ -134,33 +145,34 @@ def draw_graph(ax, ylabels, data1, data2, msg_length, max_x_label):
 	
 	ax.xaxis.grid(color='green', linestyle='-')
 
-
 	#for r in rec:
 	#	w = r.get_width()
 	#	if not w == 0:	
 	#		ax.text(10, r.get_y() + 0.5, '{}'.format(w), color='blue', fontweight='bold')
-
-def cycles_per_byte(data, size):
-
-	return [ ( x / size) for x in data ]
 
 def do_graphs_grid(str_select):
 
 	data1 = None
 	data2 = None
 
-	onekb = 1024
-	eightkb = 8 * 1024
-	fifteenkb = 15 * 1024
-	fiftykb = 50 * 1024
+	onekb = msg_sizes[0]
+	eightkb = msg_sizes[1]
+	fifteenkb = msg_sizes[2]
+	fiftykb = msg_sizes[3]
 
 	if (str_select == 'encrypt'):
 		data1 = encrypt_aes128_gcm
 		data2 = encrypt_chacha_poly
-		max_x_label_onekb = 70
-		max_x_label_eightkb = 70
-		max_x_label_fifteenkb = 70
-		max_x_label_fiftykb = 70
+		# For both ciphers
+		#max_x_label_onekb = 150
+		#max_x_label_eightkb = 40
+		#max_x_label_fifteenkb = 40
+		#max_x_label_fiftykb = 40
+		# For aes128-gcm only
+		max_x_label_onekb = 4
+		max_x_label_eightkb = 4
+		max_x_label_fifteenkb = 4
+		max_x_label_fiftykb = 4
 	elif (str_select == 'decrypt'):
 		data1 = decrypt_aes128_gcm
 		data2 = decrypt_chacha_poly
@@ -215,4 +227,5 @@ if __name__ == '__main__':
 
 	parse_logs()
 
-	do_graphs_grid('decrypt')
+	#do_graphs_grid('decrypt')
+	do_graphs_grid('encrypt')
