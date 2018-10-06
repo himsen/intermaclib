@@ -43,15 +43,15 @@
    #define MAX_DOUBLE_VALUE 1.7976931348623157e+308
 
    #ifndef REPEAT     
-      #define REPEAT 4
+      #define REPEAT 1000
    #endif
    
    #ifndef OUTER_REPEAT
-      #define OUTER_REPEAT 1
+      #define OUTER_REPEAT 100
    #endif
 
    #ifndef WARMUP
-      #define WARMUP REPEAT/4
+      #define WARMUP REPEAT
    #endif
 
     unsigned long long RDTSC_start_clk, RDTSC_end_clk;
@@ -96,8 +96,7 @@ inline static uint64_t get_Clks(void)
       if(RDTSC_total_clk>RDTSC_TEMP_CLK) RDTSC_total_clk = RDTSC_TEMP_CLK;                          \
     } \
   printf("%s", msg); \
-  printf(" took %0.2f cycles\n", RDTSC_total_clk ); \
-  o = RDTSC_total_clk;
+  printf(" took %0.2f cycles\n", RDTSC_total_clk );
 
    #define MEASURE(msg, x, o) RDTSC_MEASURE(msg, x, o)
 
@@ -111,7 +110,7 @@ inline static uint64_t get_Clks(void)
       RDTSC_start_clk = get_Clks();                                                                 \
       for (FAKE_ITERATOR=0; RDTSC_MEASURE_ITERATOR < REPEAT * (RDTSC_OUTER_ITERATOR + 1) + WARMUP; RDTSC_MEASURE_ITERATOR++)   \
       {                                                                                             \
-         {x};                                                                                       \
+	 {x};                                                                                       \
       }                                                                                             \
       RDTSC_end_clk = get_Clks();                                                                   \
       RDTSC_TEMP_CLK = (double)(RDTSC_end_clk-RDTSC_start_clk)/REPEAT;                              \
@@ -119,7 +118,7 @@ inline static uint64_t get_Clks(void)
     } \
   printf("%s", msg); \
   printf(" took %0.2f cycles\n", RDTSC_total_clk ); \
-  o = RDTSC_total_clk;
+    o = RDTSC_total_clk;
 
    #define MEASURE_NO_RESET(msg, x, o) RDTSC_MEASURE_NO_RESET(msg, x, o)
 #endif

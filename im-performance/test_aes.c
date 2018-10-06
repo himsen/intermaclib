@@ -5,7 +5,6 @@
 #include <ctype.h>
 #include <openssl/evp.h>
 
-/* Enables RDTSC measurement in measurements.h */
 #define RDTSC
 
 #include "measurements.h"
@@ -93,17 +92,17 @@ int main(int argc, char* argv[]) {
 	u_char *key = NULL;
 	u_char *dst = NULL;
 	u_char *src = NULL;
-	u_int src_len = 50 * 1024;
+	u_int src_len = 8 * 1024;
 	u_int seed_pi = 314159;
 	u_int key_len = 12;
 	int i = 0;
-	int j = 0;
 	uint32_t chunk = 0;
 	uint64_t msg = 0;
 	int res = 0;
 
+
 	srand(seed_pi);
-		
+
 	key = calloc(1, sizeof(u_char) * key_len);
 
 	for (i = 0; i < key_len; ++i) {
@@ -129,11 +128,17 @@ int main(int argc, char* argv[]) {
 	}
 
 	encode_nonce(nonce, chunk, msg);
-	
+
 	dst = calloc(1, sizeof(u_char) * src_len);
 
-	MEASURE("ENCRYPT", test_aes_gcm_clock(evp, src, src_len, dst, nonce);, res);
+	for (i = 0; i < 50; ++i) {
+		MEASURE("ENCRYPT", res = test_aes_gcm_clock(evp, src, src_len, dst, nonce);, res);
+ 		//res = test_aes_gcm_clock(evp, src, src_len, dst, nonce);
+		if (res == 0)
+			fprintf(stderr, "ERROR\n");
+	}
 
+	//dump_data(src, src_len, stderr);
 	//dump_data(dst, src_len, stderr);
 
 out:

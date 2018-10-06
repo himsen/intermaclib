@@ -10,7 +10,7 @@ HEADER_SIZE = 6
 
 # Relative path to log directory
 # 1kb, 8kb, 15kb, 50kb
-LOG_DIR = './libim_logs/log_new'
+LOG_DIR = './libim_logs/log_new_1'
 
 NUMBER_OF_FUNCTIONS = 2
 functions = ['encrypt', 'decrypt']
@@ -36,7 +36,7 @@ NUMBER_OF_MSG_SIZES = 4
 msg_sizes = [
 	1024, # 1kb
 	8 * 1024, # 8kb
-	15 * 1024 # 15kb
+	15 * 1024, # 15kb
 	50 * 1024 # 50kb
 	]
 
