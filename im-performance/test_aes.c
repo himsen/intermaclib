@@ -58,7 +58,8 @@ void dump_data(const void *s, size_t len, FILE *f) {
 	}
 }
 
-int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len, u_char *dst, u_char *nonce) {
+int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len,
+	u_char *dst, u_char *nonce) {
 
 
 	if (EVP_CipherInit_ex(evp, NULL, NULL, NULL, nonce, 1) == 0) {
@@ -92,19 +93,20 @@ int main(int argc, char* argv[]) {
 	u_char *key = NULL;
 	u_char *dst = NULL;
 	u_char *src = NULL;
-	u_int src_len = 1024;
+	u_int src_len = 50 * 1024;
 	u_int seed_pi = 314159;
 	u_int key_len = 12;
 	int i = 0;
 	int j = 0;
 	uint32_t chunk = 0;
 	uint64_t msg = 0;
+	int res = 0;
 
 	srand(seed_pi);
 		
 	key = calloc(1, sizeof(u_char) * key_len);
 
-	for (i = 0; i < key_len; ++j) {
+	for (i = 0; i < key_len; ++i) {
 
 		key[i] = rand();
 		printf("%02X", key[i]);
@@ -130,9 +132,9 @@ int main(int argc, char* argv[]) {
 	
 	dst = calloc(1, sizeof(u_char) * src_len);
 
-	test_aes_gcm_clock(evp, src, src_len, dst, nonce);
+	MEASURE("ENCRYPT", test_aes_gcm_clock(evp, src, src_len, dst, nonce);, res);
 
-	dump_data(dst, src_len, stderr);
+	//dump_data(dst, src_len, stderr);
 
 out:
 	if (evp != NULL) {
