@@ -98,13 +98,15 @@ int main(int argc, char* argv[]) {
 	int i = 0;
 	uint32_t chunk = 0;
 	uint64_t msg = 0;
-	int res = 0;
+	int res = 1;
 
-
+	/* Seed random number generator */
 	srand(seed_pi);
 
+	/* Allocate key */
 	key = calloc(1, sizeof(u_char) * key_len);
 
+	/* Generate key */
 	for (i = 0; i < key_len; ++i) {
 
 		key[i] = rand();
@@ -112,36 +114,44 @@ int main(int argc, char* argv[]) {
 	}
 	printf("\n");
 
+	/* Allocate src */
 	src = calloc(1, sizeof(u_char) * src_len);
 
+	/* Generate src */
 	for (i = 0; i < src_len; ++i) {
 		src[i] = rand();
 	}
 
+	/* Initialise EVP interface */
 	if ((evp = EVP_CIPHER_CTX_new()) == NULL) {
 		goto out;
 	}
 
-	/* Pick cipher (EVP_aes_128_gcm) and set key */
+	/* Pick AES128-GCM, set key and set mode to encrypt */
 	if (EVP_CipherInit(evp, EVP_aes_128_gcm(), key, NULL, 1) == 0) {
 		goto out;
 	}
 
+	/* Encode nonce */
 	encode_nonce(nonce, chunk, msg);
 
+	/* Allocate dst */
 	dst = calloc(1, sizeof(u_char) * src_len);
 
-	for (i = 0; i < 50; ++i) {
-		MEASURE("ENCRYPT", res = test_aes_gcm_clock(evp, src, src_len, dst, nonce);, res);
+	/* Run benchmark */
+	//for (i = 0; i < 50; ++i) {
+		MEASURE("ENCRYPT", test_aes_gcm_clock(evp, src, src_len, dst, nonce););
  		//res = test_aes_gcm_clock(evp, src, src_len, dst, nonce);
 		if (res == 0)
 			fprintf(stderr, "ERROR\n");
-	}
+	//}
 
+	/* Dump data */
 	//dump_data(src, src_len, stderr);
 	//dump_data(dst, src_len, stderr);
 
 out:
+	/* Clean */
 	if (evp != NULL) {
 		EVP_CIPHER_CTX_free(evp);
 	}

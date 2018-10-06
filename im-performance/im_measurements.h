@@ -18,6 +18,11 @@
 * The license is detailed in the file LICENSE.txt, and applies to this file.
 * ***************************************************************************/
 
+/*
+ * Minor modifications to original code by
+ * Torben Hansen <Torben.Hansen.2015@rhul.ac.uk>
+ */
+
 #ifndef MEASURE_H
 #define MEASURE_H
 
@@ -54,6 +59,7 @@
     double RDTSC_TEMP_CLK;
     int RDTSC_MEASURE_ITERATOR;
     int RDTSC_OUTER_ITERATOR;
+    int FAKE_ITERATOR;
 
     #include <stdint.h>
 
@@ -73,7 +79,7 @@ inline static uint64_t get_Clks(void)
       5) it reads the Time Stamp Counter again at the end of the test
       6) it calculates the average number of cycles per one iteration of "x", by calculating the total number of cycles, and dividing it by REPEAT
     */      
-   #define RDTSC_MEASURE(msg, x)                                                                    \
+   #define IM_RDTSC_MEASURE(msg, x)                                                                    \
    for(RDTSC_MEASURE_ITERATOR=0; RDTSC_MEASURE_ITERATOR < WARMUP; RDTSC_MEASURE_ITERATOR++)          \
       {                                                                                             \
          {x};                                                                                       \
@@ -92,7 +98,29 @@ inline static uint64_t get_Clks(void)
   printf("%s", msg); \
   printf(" took %0.2f cycles\n", RDTSC_total_clk );
 
-   #define MEASURE(msg, x) RDTSC_MEASURE(msg, x)
+   #define IM_MEASURE(msg, x, o) IM_RDTSC_MEASURE(msg, x, o)
+
+   #define IM_RDTSC_MEASURE_NO_RESET(msg, x, o)                                                         \
+   for(RDTSC_MEASURE_ITERATOR=0; RDTSC_MEASURE_ITERATOR < WARMUP; RDTSC_MEASURE_ITERATOR++)          \
+      {                                                                                             \
+         {x};                                                                                       \
+      }                                                                                                \
+    RDTSC_total_clk = MAX_DOUBLE_VALUE;                                                      \
+    for(RDTSC_OUTER_ITERATOR=0;RDTSC_OUTER_ITERATOR < OUTER_REPEAT; RDTSC_OUTER_ITERATOR++){          \
+      RDTSC_start_clk = get_Clks();                                                                 \
+      for (FAKE_ITERATOR=0; RDTSC_MEASURE_ITERATOR < REPEAT * (RDTSC_OUTER_ITERATOR + 1) + WARMUP; RDTSC_MEASURE_ITERATOR++)   \
+      {                                                                                             \
+	       {x};                                                                                       \
+      }                                                                                             \
+      RDTSC_end_clk = get_Clks();                                                                   \
+      RDTSC_TEMP_CLK = (double)(RDTSC_end_clk-RDTSC_start_clk)/REPEAT;                              \
+      if(RDTSC_total_clk>RDTSC_TEMP_CLK) RDTSC_total_clk = RDTSC_TEMP_CLK;                          \
+    } \
+  printf("%s", msg); \
+  printf(" took %0.2f cycles\n", RDTSC_total_clk ); \
+  o = RDTSC_total_clk;
+
+   #define IM_MEASURE_NO_RESET(msg, x, o) IM_RDTSC_MEASURE_NO_RESET(msg, x, o)
 #endif
 
 #endif
