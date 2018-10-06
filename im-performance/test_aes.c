@@ -57,6 +57,7 @@ void dump_data(const void *s, size_t len, FILE *f) {
 	}
 }
 
+/* Similar to what is measured in libintermac */
 int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len,
 	u_char *dst, u_char *nonce) {
 

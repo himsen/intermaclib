@@ -10,7 +10,7 @@
 /* Enables RDTSC measurement in measurements.h */
 #define RDTSC
 
-#include "measurements.h"
+#include "im_measurements.h"
 #include "im_core.h"
 
 #define SEED_PI 314159
@@ -100,7 +100,7 @@ void im_bench_initialise(char *cipher, u_int chunk_length, u_char *key) {
 	struct intermac_ctx *im_ctx_list[IM_BENCH_TOTAL_SAMPLE_SIZE];
 
 	/* Perform benchmark */
-	MEASURE_NO_RESET("INITIALISE",
+	IM_MEASURE_NO_RESET("INITIALISE",
 		im_initialise(&im_ctx_list[RDTSC_MEASURE_ITERATOR], key, chunk_length,
 		cipher, 1);, res);
 
@@ -128,7 +128,7 @@ void im_bench_encrypt(char *cipher, u_int chunk_length, u_char *key,
 	im_initialise(&im_ctx, key, chunk_length, cipher, 1);
 
 	/* Perform benchmark */
-	MEASURE_NO_RESET("ENCRYPT",
+	IM_MEASURE_NO_RESET("ENCRYPT",
 		im_encrypt(im_ctx, &dst[RDTSC_MEASURE_ITERATOR], &dst_length, src,
 		src_length);, res);
 
@@ -169,7 +169,7 @@ void im_bench_decrypt(char *cipher, u_int chunk_length, u_char *key,
 
 	res = im_initialise(&im_ctx_decrypt, key, chunk_length, cipher, 0);
 
-	MEASURE_NO_RESET("DECRYPT",
+	IM_MEASURE_NO_RESET("DECRYPT",
 		im_decrypt(im_ctx_decrypt, dst[RDTSC_MEASURE_ITERATOR], dst_length,
 		&this_processed, &src_decrypted, &size_decrypted_ciphertext,
 		&total_allocated);, res);
