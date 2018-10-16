@@ -61,17 +61,17 @@ void dump_data(const void *s, size_t len, FILE *f) {
 int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len,
 	u_char *dst, u_char *nonce) {
 
-
-	if (EVP_CipherInit_ex(evp, NULL, NULL, NULL, nonce, 1) == 0) {
-		return 0;
-	}
-
 	if (EVP_Cipher(evp, dst, src, src_len) < 0) {
 		return 0;
 	}
 
 	if (EVP_Cipher(evp, NULL, NULL, 0) < 0) {
 		return 0;
+	}
+
+	if (EVP_CIPHER_CTX_ctrl(>evp, EVP_CTRL_GCM_GET_TAG, 16,
+		dst + src_len) == 0) {
+		return IM_ERR;
 	}
 
 	return 1;
@@ -136,8 +136,13 @@ int main(int argc, char* argv[]) {
 	/* Encode nonce */
 	encode_nonce(nonce, chunk, msg);
 
+	/* Set nonce */
+	if (EVP_CipherInit_ex(evp, NULL, NULL, NULL, nonce, 1) == 0) {
+		return 0;
+	}
+
 	/* Allocate dst */
-	dst = calloc(1, sizeof(u_char) * src_len);
+	dst = calloc(1, sizeof(u_char) * (src_len + 16));
 
 	/* Run benchmark */
 	//for (i = 0; i < 50; ++i) {
