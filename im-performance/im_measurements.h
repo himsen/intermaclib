@@ -43,11 +43,11 @@
    #define MAX_DOUBLE_VALUE 1.7976931348623157e+308
 
    #ifndef REPEAT     
-      #define REPEAT 1000
+      #define REPEAT 4
    #endif
    
    #ifndef OUTER_REPEAT
-      #define OUTER_REPEAT 100
+      #define OUTER_REPEAT 1
    #endif
 
    #ifndef WARMUP
@@ -79,7 +79,7 @@ inline static uint64_t get_Clks(void)
       5) it reads the Time Stamp Counter again at the end of the test
       6) it calculates the average number of cycles per one iteration of "x", by calculating the total number of cycles, and dividing it by REPEAT
     */      
-   #define IM_RDTSC_MEASURE(msg, x)                                                                    \
+   #define IM_RDTSC_MEASURE(msg, x, o)                                                                    \
    for(RDTSC_MEASURE_ITERATOR=0; RDTSC_MEASURE_ITERATOR < WARMUP; RDTSC_MEASURE_ITERATOR++)          \
       {                                                                                             \
          {x};                                                                                       \
@@ -89,14 +89,15 @@ inline static uint64_t get_Clks(void)
       RDTSC_start_clk = get_Clks();                                                                 \
       for (RDTSC_MEASURE_ITERATOR = 0; RDTSC_MEASURE_ITERATOR < REPEAT; RDTSC_MEASURE_ITERATOR++)   \
       {                                                                                             \
-         {x};                                                                                       \
+         {x};                                                                                   \
       }                                                                                             \
       RDTSC_end_clk = get_Clks();                                                                   \
       RDTSC_TEMP_CLK = (double)(RDTSC_end_clk-RDTSC_start_clk)/REPEAT;                              \
       if(RDTSC_total_clk>RDTSC_TEMP_CLK) RDTSC_total_clk = RDTSC_TEMP_CLK;                          \
     } \
   printf("%s", msg); \
-  printf(" took %0.2f cycles\n", RDTSC_total_clk );
+  printf(" took %0.2f cycles\n", RDTSC_total_clk ); \
+  o = RDTSC_total_clk;
 
    #define IM_MEASURE(msg, x, o) IM_RDTSC_MEASURE(msg, x, o)
 

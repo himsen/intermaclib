@@ -7,7 +7,7 @@
 
 #define RDTSC
 
-#include "measurements.h"
+#include "im_measurements.h"
 
 #define U32ENCODE(p, v) \
 	do { \
@@ -61,6 +61,11 @@ void dump_data(const void *s, size_t len, FILE *f) {
 int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len,
 	u_char *dst, u_char *nonce) {
 
+	/* Set nonce */
+	if (EVP_CipherInit(evp, NULL, NULL, nonce, 1) == 0) {
+		return 0;
+	}
+
 	if (EVP_Cipher(evp, dst, src, src_len) < 0) {
 		return 0;
 	}
@@ -69,9 +74,9 @@ int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len,
 		return 0;
 	}
 
-	if (EVP_CIPHER_CTX_ctrl(>evp, EVP_CTRL_GCM_GET_TAG, 16,
+	if (EVP_CIPHER_CTX_ctrl(evp, EVP_CTRL_GCM_GET_TAG, 16,
 		dst + src_len) == 0) {
-		return IM_ERR;
+		return 0;
 	}
 
 	return 1;
@@ -100,6 +105,7 @@ int main(int argc, char* argv[]) {
 	uint32_t chunk = 0;
 	uint64_t msg = 0;
 	int res = 1;
+	int count = 0;
 
 	/* Seed random number generator */
 	srand(seed_pi);
@@ -136,17 +142,12 @@ int main(int argc, char* argv[]) {
 	/* Encode nonce */
 	encode_nonce(nonce, chunk, msg);
 
-	/* Set nonce */
-	if (EVP_CipherInit_ex(evp, NULL, NULL, NULL, nonce, 1) == 0) {
-		return 0;
-	}
-
 	/* Allocate dst */
 	dst = calloc(1, sizeof(u_char) * (src_len + 16));
 
 	/* Run benchmark */
 	//for (i = 0; i < 50; ++i) {
-		MEASURE("ENCRYPT", test_aes_gcm_clock(evp, src, src_len, dst, nonce););
+		IM_MEASURE("ENCRYPT", res = test_aes_gcm_clock(evp, src, src_len, dst, nonce);, count);
  		//res = test_aes_gcm_clock(evp, src, src_len, dst, nonce);
 		if (res == 0)
 			fprintf(stderr, "ERROR\n");
