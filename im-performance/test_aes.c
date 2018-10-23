@@ -62,7 +62,7 @@ int test_aes_gcm_clock(EVP_CIPHER_CTX *evp, u_char *src, u_int src_len,
 	u_char *dst, u_char *nonce) {
 
 	/* Set nonce */
-	if (EVP_CipherInit(evp, NULL, NULL, nonce, 1) == 0) {
+	if (EVP_CipherInit_ex(evp, NULL, NULL, NULL, nonce, -1) == 0) {
 		return 0;
 	}
 
