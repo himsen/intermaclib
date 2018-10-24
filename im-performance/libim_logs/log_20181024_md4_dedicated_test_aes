@@ -1,0 +1,30 @@
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7668.39 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7666.41 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7664.13 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7666.29 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7662.63 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7657.50 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7684.95 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7661.04 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7689.15 cycles
+[ec2-user@ip-172-31-26-169 im-performance]$ ./test_aes 
+5044FBA63950EE25947FC024
+ENCRYPT took 7676.97 cycles
