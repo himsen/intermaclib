@@ -24,9 +24,10 @@
 /* Maximum message counter 2^{64} - 1 */
 #define IM_NONCE_MESSAGE_CTR_LEN 0xFFFFFFFFFFFFFFFF
 /* TODO below constants does not align with the InterMAC in practice paper */
-#define IM_CHUNK_DELIMITER_NOT_FINAL '\x61'
-#define IM_CHUNK_DELIMITER_FINAL '\x62'
-#define IM_CHUNK_DELIMITER_FINAL_NO_PADDING '\x63'
+#define IM_CHUNK_DELIMITER_NOT_FINAL 0x00
+#define IM_CHUNK_DELIMITER_FINAL 0x02
+#define IM_CHUNK_DELIMITER_FINAL_NO_PADDING 0x1
+#define IM_CHUNK_DELIMITER_MAX IM_CHUNK_DELIMITER_FINAL
 
 /* Macro's */
 
