@@ -29,8 +29,10 @@ static inline int im_add_alternating_padding(u_char *chunk, u_char last_byte,
 	u_int padding_length, u_int chunk_length);
 static inline int im_encode_nonce(u_char *nonce, uint32_t chunk_counter,
 	uint64_t message_counter);
-static int im_padding_length_decrypt(u_char *decrypted_chunk,
+static int im_padding_length_decrypt_constant_time(u_char *decrypted_chunk,
 	u_int chunk_length, u_char chunk_delimiter, u_int *padding_length);
+static int im_padding_length_decrypt(u_char *decrypted_chunk,
+	u_int chunk_length, u_int *padding_length);
 
 /*
  * @brief Computes the number of padding bytes needed to hit a multiple of
@@ -61,7 +63,7 @@ static inline void im_padding_length_encrypt(u_int length, u_int chunk_length,
  * @param padding_length Address to which the result is written
  * @return IM_OK on success, IM_ERR on failure
  */
-static int im_padding_length_decrypt(u_char *decrypted_chunk,
+static int im_padding_length_decrypt_constant_time(u_char *decrypted_chunk,
 	u_int chunk_length, u_char chunk_delimiter, u_int *padding_length) {
 
 	u_int i = 0;
@@ -106,6 +108,39 @@ static int im_padding_length_decrypt(u_char *decrypted_chunk,
 	 */
 	padding_mult = (chunk_delimiter * (chunk_delimiter - 1)) >> 1;
 	*padding_length = padding_counter * padding_mult;
+
+	return IM_OK;
+}
+
+static int im_padding_length_decrypt(u_char *decrypted_chunk,
+	u_int chunk_length, u_int *padding_length) {
+
+	u_int i = 0;
+	u_int padding_counter = 0;
+	u_char padding_byte = 0x00;
+
+	/* If this is the case, there is something wrong! */
+	if (chunk_length < 3) {
+		return IM_ERR;
+	}
+
+	/* 
+	 * Retrieve padding byte
+	 * decrypted_chunk[chunk_length - 1] is the chunk delimiter
+	 */
+	padding_byte = decrypted_chunk[chunk_length - 1];
+
+	for (i = 0; i < chunk_length; i++) {
+
+		if (decrypted_chunk[(chunk_length - 1) - i] == padding_byte) {
+			padding_counter = padding_counter + 1;
+		}
+		else {
+			break;
+		}
+	}
+
+	*padding_length = padding_counter;
 
 	return IM_OK;
 }
@@ -580,6 +615,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 	u_char *decryption_buffer = NULL;
 	u_char chunk_delimiter = 0;
 
+	u_int done = 0;
 	u_int chunk_length = 0;
 	u_int ciphertext_length = 0;
 	u_int mactag_length = 0;
@@ -712,18 +748,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 			goto fail_clean;
 		}
 
-		/*
-		 * Computes the padding length even though this might not be the
-		 * final chunk in a message or there might not be any padding. This
-		 * serves as a precaution to not leaking timing information.
-		 * If this is not the final chunk, the padding length is 0.
-		 */
-		if (im_padding_length_decrypt(decrypted_chunk, chunk_length,
-			chunk_delimiter, &padding_length) == IM_ERR) {
 
-			r = IM_ERR;
-			goto fail_clean;
-		}
 
 		/*
 		 * Updates decryption state variables to reflect we have decrypted
@@ -738,6 +763,34 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 
 			r = IM_ERR;
 			goto fail_clean;
+		}
+
+		/*
+		 * If chunk delimiter is greater than 0x00 then we have processed the
+		 * final chunk.
+		 */
+		if (chunk_delimiter > 0x00) {
+			
+			if (chunk_delimiter == IM_CHUNK_DELIMITER_FINAL_NO_PADDING) {
+				padding_length = 0;
+			}
+			else {
+
+				/*
+				 * Computes the padding length.
+				 */
+				if (im_padding_length_decrypt(decrypted_chunk, chunk_length,
+					&padding_length) == IM_ERR) {
+
+					r = IM_ERR;
+					goto fail_clean;
+				}
+			}
+
+			done = 1;
+		}
+		else {
+			padding_length = 0;
 		}
 
 		/* Copies the decrypted chunk to the decryption_buffer */
@@ -756,11 +809,7 @@ int im_decrypt(struct intermac_ctx *im_ctx, const u_char *src, u_int src_length,
 		}
 		im_ctx->chunk_counter = chunk_counter + 1;
 
-		/*
-		 * If chunk delimiter is greater than 0x00 then we have processed the
-		 * final chunk.
-		 */
-		if (chunk_delimiter > 0x00) {
+		if (done == 1) {
 			break;
 		}
 	}
