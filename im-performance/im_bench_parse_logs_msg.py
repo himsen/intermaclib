@@ -10,7 +10,7 @@ HEADER_SIZE = 6
 
 # Relative path to log directory
 # 1kb, 8kb, 15kb, 50kb
-LOG_DIR = './libim_logs/log_20181024_2'
+LOG_DIR = './libim_logs/log_ct'
 
 NUMBER_OF_FUNCTIONS = 2
 functions = ['encrypt', 'decrypt']
@@ -124,33 +124,44 @@ def parse_logs():
 
 def draw_graph(ax, ylabels, data1, data2, data3, data4, msg_length, max_x_label):
 
-	#y = np.arange(len(ylabels))
-	height = 2
-	distance = 3
+	height = 20
+	distance = 10
 	block = height * 4 + distance
 	y1 = [block * i for i in range(14)]
 	y2 = [block * i + height for i in range(14)]
 	y3 = [block * i + height * 2 for i in range(14)]
 	y4 = [block * i + height * 3 for i in range(14)]
 
-	rec1 = ax.barh(y1, data1, height, align='center', color='red')
-	rec2 = ax.barh(y2, data2, height, align='center', color='lime')
-	rec3 = ax.barh(y3, data3, height, align='center', color='navy')
-	rec4 = ax.barh(y4, data4, height, align='center', color='gold')
+	rec1 = ax.barh(y1, data1, height, align='center', color='#DA2256')
+	rec2 = ax.barh(y2, data2, height, align='center', color='#FEBC38')
+	rec3 = ax.barh(y3, data3, height, align='center', color='#D8C684')
+	rec4 = ax.barh(y4, data4, height, align='center', color='#697F98')
 
-	ax.set_title('{}'.format(msg_length))
+	for bar in rec1:
+		bar.set_hatch('/')
+	for bar in rec2:
+		bar.set_hatch('*')
+	for bar in rec3:
+		bar.set_hatch('x')
+	for bar in rec4:
+		bar.set_hatch('O')
 
-	ax.set_yticks([i - 0.5 for i in y3])
+	ax.set_title('{}'.format(msg_length), fontsize=40)
+
+	ax.set_yticks([i - float(height / 2) for i in y3])
 	ax.set_yticklabels(ylabels)
-	ax.set_ylabel('chunk length')
+	ax.set_ylabel('chunk length', fontsize=40)
 	
-	ax.set_xlabel('cycles / byte')
+	ax.set_xlabel('cycles / byte', fontsize=40)
 	ax.set_xlim(0, max_x_label)
-	ax.set_ylim(-distance - 0.5, block * 14)
+	ax.set_ylim(- float(height / 2) - distance, block * 14 - distance - float(height / 2) + distance)
 
-	ax.legend((rec4[0], rec3[0], rec2[0], rec1[0]), ('50KB', '15KB', '8KB','1KB'), loc='center right', prop={'size': 8})
+	ax.legend((rec4[0], rec3[0], rec2[0], rec1[0]), ('50KB', '15KB', '8KB','1KB'), loc='center right', prop={'size': 40})
 	
-	ax.xaxis.grid(color='green', linestyle='-')
+	plt.setp(ax.get_xticklabels(), fontsize=35)
+	plt.setp(ax.get_yticklabels(), fontsize=35)
+
+	ax.xaxis.grid(color='black', linestyle='-')
 
 def draw_graph_only_aes(ax, ylabels, data, msg_length, max_x_label):
 
@@ -171,7 +182,7 @@ def draw_graph_only_aes(ax, ylabels, data, msg_length, max_x_label):
 
 	ax.legend(loc='center right', prop={'size': 8})
 	
-	ax.xaxis.grid(color='green', linestyle='-')
+	ax.xaxis.grid(color='black', linestyle='-')
 
 def do_graphs_grid(str_select):
 
@@ -187,21 +198,21 @@ def do_graphs_grid(str_select):
 		data1 = encrypt_aes128_gcm
 		data2 = encrypt_chacha_poly
 		max_x_label_aes_gcm = 6
-		max_x_label_chacha_poly = 180
+		max_x_label_chacha_poly = 95
 	elif (str_select == 'decrypt'):
 		data1 = decrypt_aes128_gcm
 		data2 = decrypt_chacha_poly
-		max_x_label_aes_gcm = 280
-		max_x_label_chacha_poly = 75
+		max_x_label_aes_gcm = 37
+		max_x_label_chacha_poly = 125
 
-	fig = plt.figure(figsize=(20,20))
+	fig = plt.figure(figsize=(40,30))
 
-	fig.suptitle('{}()'.format(str_select), fontsize=22)
+	fig.suptitle('im_{}()'.format(str_select), fontsize=64)
 
-	gs = gridspec.GridSpec(2, 1, height_ratios=[1,1])
+	gs = gridspec.GridSpec(1, 2, width_ratios=[1,1])
 	ax1 = plt.subplot(gs[0])
 	ax2 = plt.subplot(gs[1])
-	
+
 	draw_graph(
 		ax1,
 		chunk_lengths,
@@ -222,8 +233,9 @@ def do_graphs_grid(str_select):
 		max_x_label_chacha_poly)
 
 
-	plt.tight_layout(pad=1, w_pad=1, h_pad=1, rect=[0, 0, 1, 0.95])
-	plt.show()
+	plt.tight_layout(pad=1, w_pad=1, h_pad=1.5, rect=[0, 0, 1, 0.95])
+	#plt.show()
+	plt.savefig("grouped_msg.png")
 
 def do_graphs_grid_only_aes(str_select):
 
@@ -250,7 +262,7 @@ def do_graphs_grid_only_aes(str_select):
 
 	fig = plt.figure(figsize=(9,9))
 
-	fig.suptitle('{}()'.format(str_select), fontsize=22)
+	fig.suptitle('{}()'.format(str_select), fontsize=36)
 
 	gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1], height_ratios=[1,1])
 	ax1 = plt.subplot(gs[0])
@@ -290,7 +302,7 @@ if __name__ == '__main__':
 
 	parse_logs()
 
-	#do_graphs_grid('decrypt')
-	do_graphs_grid('encrypt')
+	do_graphs_grid('decrypt')
+	#do_graphs_grid('encrypt')
 	#do_graphs_grid_only_aes('decrypt')
 	#do_graphs_grid_only_aes('encrypt')

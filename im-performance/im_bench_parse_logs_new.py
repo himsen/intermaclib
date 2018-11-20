@@ -10,7 +10,7 @@ HEADER_SIZE = 6
 
 # Relative path to log directory
 # 1kb, 8kb, 15kb, 50kb
-LOG_DIR = './libim_logs/log_new_1'
+LOG_DIR = './libim_logs/log_20181024_2'
 
 NUMBER_OF_FUNCTIONS = 2
 functions = ['encrypt', 'decrypt']
@@ -189,17 +189,17 @@ def do_graphs_grid(str_select):
 	if (str_select == 'encrypt'):
 		data1 = encrypt_aes128_gcm
 		data2 = encrypt_chacha_poly
-		max_x_label_onekb = 150
-		max_x_label_eightkb = 40
-		max_x_label_fifteenkb = 40
-		max_x_label_fiftykb = 40
+		max_x_label_onekb = 280
+		max_x_label_eightkb = 75
+		max_x_label_fifteenkb = 75
+		max_x_label_fiftykb = 75
 	elif (str_select == 'decrypt'):
 		data1 = decrypt_aes128_gcm
 		data2 = decrypt_chacha_poly
-		max_x_label_onekb = 190
-		max_x_label_eightkb = 50
-		max_x_label_fifteenkb = 50
-		max_x_label_fiftykb = 50
+		max_x_label_onekb = 350
+		max_x_label_eightkb = 95
+		max_x_label_fifteenkb = 90
+		max_x_label_fiftykb = 90
 
 	fig = plt.figure(figsize=(9,9))
 
@@ -255,16 +255,16 @@ def do_graphs_grid_only_aes(str_select):
 
 	if (str_select == 'encrypt'):
 		data = encrypt_aes128_gcm
-		max_x_label_onekb = 5
-		max_x_label_eightkb = 3
-		max_x_label_fifteenkb = 3
-		max_x_label_fiftykb = 3
+		max_x_label_onekb = 13
+		max_x_label_eightkb = 6
+		max_x_label_fifteenkb = 6
+		max_x_label_fiftykb = 6
 	elif (str_select == 'decrypt'):
 		data = decrypt_aes128_gcm
-		max_x_label_onekb = 40
-		max_x_label_eightkb = 10
-		max_x_label_fifteenkb = 8
-		max_x_label_fiftykb = 8
+		max_x_label_onekb = 85
+		max_x_label_eightkb = 20
+		max_x_label_fifteenkb = 15
+		max_x_label_fiftykb = 15
 
 	fig = plt.figure(figsize=(9,9))
 
@@ -308,7 +308,7 @@ if __name__ == '__main__':
 
 	parse_logs()
 
-	#do_graphs_grid('decrypt')
+	do_graphs_grid('decrypt')
 	#do_graphs_grid('encrypt')
 	#do_graphs_grid_only_aes('decrypt')
-	do_graphs_grid_only_aes('encrypt')
+	#do_graphs_grid_only_aes('encrypt')
