@@ -132,10 +132,10 @@ def draw_graph(ax, ylabels, data1, data2, data3, data4, msg_length, max_x_label)
 	y3 = [block * i + height * 2 for i in range(14)]
 	y4 = [block * i + height * 3 for i in range(14)]
 
-	rec1 = ax.barh(y1, data1, height, align='center', color='#DA2256')
-	rec2 = ax.barh(y2, data2, height, align='center', color='#FEBC38')
-	rec3 = ax.barh(y3, data3, height, align='center', color='#D8C684')
-	rec4 = ax.barh(y4, data4, height, align='center', color='#697F98')
+	rec1 = ax.barh(y1, data1, height, align='center', color='#e69f00')
+	rec2 = ax.barh(y2, data2, height, align='center', color='#56b4e9')
+	rec3 = ax.barh(y3, data3, height, align='center', color='#f0e442')
+	rec4 = ax.barh(y4, data4, height, align='center', color='#cc79a7')
 
 	for bar in rec1:
 		bar.set_hatch('/')
@@ -302,7 +302,7 @@ if __name__ == '__main__':
 
 	parse_logs()
 
-	do_graphs_grid('decrypt')
-	#do_graphs_grid('encrypt')
+	#do_graphs_grid('decrypt')
+	do_graphs_grid('encrypt')
 	#do_graphs_grid_only_aes('decrypt')
 	#do_graphs_grid_only_aes('encrypt')
