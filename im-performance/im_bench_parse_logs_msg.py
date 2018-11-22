@@ -132,6 +132,7 @@ def draw_graph(ax, ylabels, data1, data2, data3, data4, msg_length, max_x_label)
 	y3 = [block * i + height * 2 for i in range(14)]
 	y4 = [block * i + height * 3 for i in range(14)]
 
+	# Color palette from here: http://mkweb.bcgsc.ca/colorblind/
 	rec1 = ax.barh(y1, data1, height, align='center', color='#e69f00')
 	rec2 = ax.barh(y2, data2, height, align='center', color='#56b4e9')
 	rec3 = ax.barh(y3, data3, height, align='center', color='#f0e442')
